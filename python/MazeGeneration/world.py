@@ -4,6 +4,7 @@ from random import randint
 
 class Cell:
     def __init__(self, pos, maze_width):
+        # Base Cell class other cells will morph if needed by a search type
         self.id = pos
         self.neighbors = []
         self.is_start = False
@@ -13,9 +14,15 @@ class Cell:
         self.position = (pos % maze_width, floor(pos / maze_width))
         self.draw_position = (-1, -1)
         # East and South
+        # We do not need to care about all directions on each cell as wither it's neighbors will handle that
+        # or it does not have neighbors in that direction
         self.path = [False, False]
 
     def populate_neighbors(self, w, h, cells):
+        # Check if the cell has neighbors in each cardinal direction
+        # then assigns them as its neighbors or None keeping indexing as an option for referencing
+        # direction, ex: north = 0 cell.neighbors[north]
+        # (This is not implemented yet. However, it will add an additional layer of clarity to the code)
         north = self.id - w if self.position[1] > 0 else None
         east = self.id + 1 if self.position[0] < w - 1 else None
         south = self.id + w if self.position[1] < h - 1 else None

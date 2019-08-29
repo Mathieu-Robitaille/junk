@@ -1,3 +1,11 @@
+#!/usr/bin/env python
+
+# Author: Mathieu Robitaille
+
+# Possible optimisations :
+# Use A* cells on initial world generation if A* is the search algo being used
+
+
 import sys
 import time
 from math import floor
@@ -6,6 +14,11 @@ import pygame
 
 from search import StarSearch
 from world import World
+
+
+# Declare global vars, some of these may be better suited being placed elsewhere
+# ex: the width vars could be set as defaults for make maze, then use sys.args
+# to populate the vars from command line if we want something different
 
 WALL_WIDTH = 2 * 4
 PATH_WIDTH = 4 * 4
@@ -20,6 +33,7 @@ WHITE = (255, 255, 255)
 
 class PyGameObj(object):
     def __init__(self, search_type):
+        # Set up the core object used to draw to the screen and hold the maze data
         self.screen = pygame.display.set_mode(
             (MAZE_WIDTH * (WALL_WIDTH + PATH_WIDTH),
              MAZE_HEIGHT * (WALL_WIDTH + PATH_WIDTH)))
@@ -32,6 +46,8 @@ class PyGameObj(object):
         self.path = []
 
     def run(self, verbose):
+        # This holds the main while loop for the maze generation and the control logic for which
+        # search algorithm will solve the maze
         while True:
             self.event_loop()
             if len(self.stack) > 0:
@@ -47,12 +63,23 @@ class PyGameObj(object):
                 pygame.display.update()
 
     def event_loop(self):
+        # Check if the user is trying to exit the pygame instance
         for event in pygame.event.get():
             if event.type() == pygame.QUIT:
                 sys.exit()
 
     def draw(self):
+        # Fairly bloated draw cycle.
+        # This can get cut down I'm certain
+        #
+        # Iterated over each cell and draws it accordingly, if the search algo is done
+        # draw the path
+        # Right now it is only structured to work with A* searching which is either done or not.
+        # Once another search algo is implemented this will need to be changed to allow a
+        # fraame by frame drawing of the current path
         self.screen.fill(pygame.Color("black"))
+
+        # Draw the maze as it is being built or the finished maze
         for cell in self.w.cells:
             color = BLACK
             if cell.visited:
@@ -75,10 +102,13 @@ class PyGameObj(object):
             pygame.draw.rect(self.screen, color,
                              (cell.draw_position[0], cell.draw_position[1],
                               PATH_WIDTH, PATH_WIDTH))
+
+        # Draw the head node of the stack
         if len(self.stack) > 0:
             pygame.draw.rect(self.screen, BLUE,
                              (self.stack[-1].draw_position[0], self.stack[-1].draw_position[1],
                               PATH_WIDTH, PATH_WIDTH))
+        # If the maze is solved, draw the path from start to end
         if self.solved:
             cell = self.path[-1]
             divisions = 255 / len(self.path)
@@ -95,10 +125,15 @@ class PyGameObj(object):
                 cell = cell.parent
 
     def search_picker(self):
+        # Only one pathing algo right now
         if self.search_type == "Star":
             self.solved, self.path = StarSearch(self.w).solve()
 
     def update(self):
+        # Very simple update cycle as of now.
+        # This is where it would make sense to put pathing algo updates
+        # with algos like flood fill or breadth/depth first allowing us to
+        # see the path being built
         self.w.update(self.stack)
 
 
