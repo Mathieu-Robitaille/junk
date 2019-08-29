@@ -1,0 +1,11 @@
+[Unit]
+Description=VPN Monitoring Daemon
+After=default.target
+
+[Service]
+Restart=always
+RestartSec=60
+ExecStart=/usr/bin/python3.5 /usr/share/screenie/screenie.py
+
+[Install]
+WantedBy=default.target
