@@ -36,8 +36,8 @@ class Cell:
 class World:
     def __init__(self):
         self.cells = [Cell(i) for i in range(MAZE_WIDTH * MAZE_HEIGHT)]
-        self.start = randint(0, MAZE_WIDTH * MAZE_HEIGHT)
-        self.end = randint(0, MAZE_WIDTH * MAZE_HEIGHT) # MAZE_WIDTH * MAZE_HEIGHT - 1
+        self.start = 0 # randint(0, MAZE_WIDTH * MAZE_HEIGHT)
+        self.end = MAZE_WIDTH * MAZE_HEIGHT - 1 # randint(0, MAZE_WIDTH * MAZE_HEIGHT)
         self.cells[self.start].is_start = True
         self.cells[self.end].is_end = True
         for cell in self.cells:
@@ -62,3 +62,16 @@ class World:
         elif next_cell.id - 1 == this_cell.id:
             this_cell.path[0] = True
         stack.append(next_cell)
+
+    def random_paths(self):
+        for cell in self.cells:
+            if randint(0, 100) > PATH_CHANCE:
+                if randint(0, 100) > PATH_DIRECTION_CHANCE:
+                    # east
+                    if not cell.position[0] + 1 == MAZE_WIDTH:
+                        cell.path[0] = True
+                else:
+                    # south
+                    if not cell.position[1] + 1 == MAZE_HEIGHT:
+                        cell.path[1] = True
+        return True

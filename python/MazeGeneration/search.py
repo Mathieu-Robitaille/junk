@@ -27,6 +27,7 @@ class Cell(WorldCell):
         if isinstance(other, Cell):
             return self.f < other.f
 
+
 class Search:
     def __init__(self, world, screen):
         self.world = world

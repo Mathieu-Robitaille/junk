@@ -16,7 +16,7 @@ from mazeglobals import *
 
 
 class PyGameObj(object):
-    def __init__(self, search_type):
+    def __init__(self, search_type, random_paths, verbose):
         # Set up the core object used to draw to the screen and hold the maze data
         pygame.init()
         pygame.display.set_caption("Mathieu Robitaille's Maze Generation")
@@ -28,15 +28,17 @@ class PyGameObj(object):
         self.search_type = search_type
         self.search = None
         self.solved = False
+        self.verbose = verbose
+        self.random_paths = (random_paths, False)
 
-    def run(self, verbose):
+    def run(self):
         # This holds the main while loop for the maze generation and the control logic for which
         # search algorithm will solve the maze
         while True:
             self.event_loop()
             if len(self.stack) == 0:
                 self.search_picker()
-            if verbose or self.search is not None:
+            if self.verbose or self.search is not None:
                 self.draw()
                 if self.search is not None:
                     self.search.draw()
@@ -96,6 +98,8 @@ class PyGameObj(object):
         if self.search is not None:
             return
         # Only one pathing algo right now
+        if self.random_paths[0]:
+            self.random_paths = (not self.random_paths[0], self.w.random_paths())
         if self.search_type in ("star", "1"):
             self.search = StarSearch(self.w, self.screen)
         elif self.search_type in ("flood", "2"):
@@ -116,7 +120,7 @@ def make_maze():
     # TODO: Proper input handling
     # search_type = input("\nAvailable search types are : \n\n\t1) A* Search\n\t2) Flood fill\n\t"
     #                     "Please make your selection by entering a number -> ")
-    PyGameObj("1").run(verbose=False)
+    PyGameObj("1", random_paths=True, verbose=True).run()
 
 
 if __name__ == "__main__":
