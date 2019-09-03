@@ -16,7 +16,7 @@ from mazeglobals import *
 
 
 class PyGameObj(object):
-    def __init__(self, search_type, random_paths, verbose):
+    def __init__(self, random_paths, verbose):
         # Set up the core object used to draw to the screen and hold the maze data
         pygame.init()
         pygame.display.set_caption("Mathieu Robitaille's Maze Generation")
@@ -25,8 +25,8 @@ class PyGameObj(object):
              MAZE_HEIGHT * (WALL_WIDTH + PATH_WIDTH)))
         self.w = World()
         self.stack = [self.w.cells[0]]
-        self.search_type = search_type
-        self.search = None
+        self.search_type = 0
+        self.searches = []
         self.solved = False
         self.verbose = verbose
         self.random_paths = (random_paths, False)
@@ -38,10 +38,10 @@ class PyGameObj(object):
             self.event_loop()
             if len(self.stack) == 0:
                 self.search_picker()
-            if self.verbose or self.search is not None:
+            if self.verbose or len(self.searches) is not 0:
                 self.draw()
-                if self.search is not None:
-                    self.search.draw()
+                if len(self.searches) is not 0:
+                    self.searches[self.search_type].draw()
             # Place update call here as update may have some specific
             # draw calls to make we do not want over write
             self.update()
@@ -55,6 +55,12 @@ class PyGameObj(object):
             elif event.type == pygame.KEYDOWN:
                 if event.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE):
                     sys.exit()
+                elif event.key == pygame.K_UP and self.search_type < len(self.searches) - 1:
+                    self.search_type += 1
+                    print("Increasing search type to : " + str(self.search_type))
+                elif event.key == pygame.K_DOWN and self.search_type > 0:
+                    self.search_type -= 1
+                    print("Decreasing search type to : " + str(self.search_type))
 
     def draw(self):
         # Fairly bloated draw cycle.
@@ -95,15 +101,13 @@ class PyGameObj(object):
         # The search algo should draw its own solution
 
     def search_picker(self):
-        if self.search is not None:
+        if len(self.searches) is not 0:
             return
         # Only one pathing algo right now
         if self.random_paths[0]:
             self.random_paths = (not self.random_paths[0], self.w.random_paths())
-        if self.search_type in ("star", "1"):
-            self.search = StarSearch(self.w, self.screen)
-        elif self.search_type in ("flood", "2"):
-            self.search = FloodFill(self.w, self.screen)
+        self.searches.append(StarSearch(self.w, self.screen))
+        self.searches.append(FloodFill(self.w, self.screen))
 
     def update(self):
         # Very simple update cycle as of now.
@@ -113,14 +117,15 @@ class PyGameObj(object):
         if len(self.stack) > 0:
             self.w.update(self.stack)
         else:
-            self.search.update()
+            for search in self.searches:
+                search.update()
 
 
 def make_maze():
     # TODO: Proper input handling
     # search_type = input("\nAvailable search types are : \n\n\t1) A* Search\n\t2) Flood fill\n\t"
     #                     "Please make your selection by entering a number -> ")
-    PyGameObj("2", random_paths=True, verbose=True).run()
+    PyGameObj(random_paths=True, verbose=True).run()
 
 
 if __name__ == "__main__":
