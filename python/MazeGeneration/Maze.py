@@ -9,7 +9,7 @@
 import sys
 import pygame
 
-from search import StarSearch
+from search import StarSearch, FloodFill
 from world import World
 # I'm pretty sure wildcard imports are bad?
 from mazeglobals import *
@@ -57,7 +57,7 @@ class PyGameObj(object):
     def draw(self):
         # Fairly bloated draw cycle.
         # This can get cut down I'm certain
-
+        # TODO: This should probably be in the world class as this is drawing the world
         self.screen.fill(pygame.Color("black"))
 
         # Draw the maze as it is being built or the finished maze
@@ -99,7 +99,7 @@ class PyGameObj(object):
         if self.search_type in ("star", "1"):
             self.search = StarSearch(self.w, self.screen)
         elif self.search_type in ("flood", "2"):
-            return
+            self.search = FloodFill(self.w, self.screen)
 
     def update(self):
         # Very simple update cycle as of now.
@@ -116,7 +116,7 @@ def make_maze():
     # TODO: Proper input handling
     # search_type = input("\nAvailable search types are : \n\n\t1) A* Search\n\t2) Flood fill\n\t"
     #                     "Please make your selection by entering a number -> ")
-    PyGameObj("star").run(verbose=True)
+    PyGameObj("1").run(verbose=False)
 
 
 if __name__ == "__main__":

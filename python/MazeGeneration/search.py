@@ -1,7 +1,7 @@
 import heapq
 import pygame
 
-from math import floor
+from math import floor, sqrt
 from world import Cell as WorldCell
 # I'm pretty sure wildcard imports are bad?
 from mazeglobals import *
@@ -20,7 +20,6 @@ class Cell(WorldCell):
         self.g = 0
         self.h = 0
         self.f = 0
-        self.parent = None
 
     def __lt__(self, other):
         # We need to create a less than comparison as the heapq will use it to order
@@ -28,57 +27,17 @@ class Cell(WorldCell):
         if isinstance(other, Cell):
             return self.f < other.f
 
-
-class StarSearch(object):
+class Search:
     def __init__(self, world, screen):
-        # Init the search, we need to rebuild the set of cells as they need more info stored in them
-        self.path = []
+        self.world = world
+        self.cells = self.world.cells
+        self.screen = screen
         self.opened = []
         self.closed = set()
         self.solved = False
-        self.screen = screen
-        heapq.heapify(self.opened)
-        self.world = world
-        self.cells = [Cell(c) for c in self.world.cells]
+        self.path = []
         self.end = self.cells[self.world.end]
         self.start = self.cells[self.world.start]
-        # This may not be the best way to do this.
-        for cell in self.cells:
-            cell.populate_neighbors(self.cells)
-            cell.draw_position = (cell.position[0] * DRAW_OFFSET,
-                                  cell.position[1] * DRAW_OFFSET)
-        heapq.heappush(self.opened, (self.start.f, self.start))
-
-    def get_heuristic(self, cell):
-        """
-        Calculate the heuristic value H for a cell: dist between this cell and the ending cell x 10
-        :param cell: the cell of which to calculate the heuristic
-        :returns heuristic value:
-        """
-        return 10 * (abs(cell.position[1] - self.end.position[1]) + abs(cell.position[0] - self.end.position[0]))
-
-    def get_path(self):
-        # Iterates through the gathered cells by jumping to its parent
-        # constructing a list of cells on the path between the start and end
-        cell = self.end
-        path = [cell]
-        while cell.parent is not self.start:
-            cell = cell.parent
-            path.append(cell)
-        path.append(self.start)
-        self.path = path
-
-    def update_cell(self, adj, cell):
-        """
-        Updates a cells' heuristic and parent
-        :param adj: The cell adjacent to the current cell to be updated
-        :param cell: The current cell being evaluated
-        :return: None
-        """
-        adj.g = cell.g + 10
-        adj.h = self.get_heuristic(adj)
-        adj.parent = cell
-        adj.f = adj.h + adj.g
 
     def get_reachable(self, cell):
         """
@@ -100,13 +59,28 @@ class StarSearch(object):
                 east = (True if cell.path[0] else False, neighbor)
         return [north, east, south, west]
 
+    def get_path(self):
+        # Iterates through the gathered cells by jumping to its parent
+        # constructing a list of cells on the path between the start and end
+        cell = self.end
+        path = [cell]
+        while cell.parent is not self.start:
+            cell = cell.parent
+            path.append(cell)
+        path.append(self.start)
+        self.path = path
+
     def draw_cell(self, cell, color=WHITE, update=False):
         pygame.draw.rect(self.screen, color,
-                         (cell.draw_position[0] + (PATH_WIDTH / 4),
-                          cell.draw_position[1] + (PATH_WIDTH / 4),
+                         (cell.draw_position[0],
+                          cell.draw_position[1],
                           PATH_WIDTH, PATH_WIDTH))
         if update:
             pygame.display.update()
+
+    def update_cell(self, cell, neighbor):
+        if neighbor.parent is None:
+            neighbor.parent = cell
 
     def draw(self):
         for cell in self.cells:
@@ -126,11 +100,47 @@ class StarSearch(object):
                 color = (color[0] - divisions if color[0] - divisions > 0 else 0, 0,
                          color[2] + divisions if color[2] + divisions < 255 else 255)
                 pygame.draw.line(self.screen, color,
-                                 (cell.draw_position[0] + PATH_WIDTH / 2 + 3,
-                                  cell.draw_position[1] + PATH_WIDTH / 2 + 3),
-                                 (cell.parent.draw_position[0] + PATH_WIDTH / 2 + 3,
-                                  cell.parent.draw_position[1] + PATH_WIDTH / 2 + 3),
+                                 (cell.draw_position[0] + PATH_WIDTH / 2,
+                                  cell.draw_position[1] + PATH_WIDTH / 2),
+                                 (cell.parent.draw_position[0] + PATH_WIDTH / 2,
+                                  cell.parent.draw_position[1] + PATH_WIDTH / 2),
                                  floor(WALL_WIDTH / 2))
+
+
+class StarSearch(Search):
+    def __init__(self, world, screen):
+        super().__init__(world, screen)
+        # Init the search, we need to rebuild the set of cells as they need more info stored in them
+        heapq.heapify(self.opened)
+        self.cells = [Cell(c) for c in self.world.cells]
+        # This may not be the best way to do this.
+        self.end = self.cells[self.world.end]
+        self.start = self.cells[self.world.start]
+        for cell in self.cells:
+            cell.populate_neighbors(self.cells)
+            cell.draw_position = (cell.position[0] * DRAW_OFFSET + sqrt(PATH_WIDTH),
+                                  cell.position[1] * DRAW_OFFSET + sqrt(PATH_WIDTH))
+        heapq.heappush(self.opened, (self.start.f, self.start))
+
+    def get_heuristic(self, cell):
+        """
+        Calculate the heuristic value H for a cell: dist between this cell and the ending cell x 10
+        :param cell: the cell of which to calculate the heuristic
+        :returns heuristic value:
+        """
+        return 10 * (abs(cell.position[1] - self.end.position[1]) + abs(cell.position[0] - self.end.position[0]))
+
+    def update_cell(self, adj, cell):
+        """
+        Updates a cells' heuristic and parent
+        :param adj: The cell adjacent to the current cell to be updated
+        :param cell: The current cell being evaluated
+        :return: None
+        """
+        adj.g = cell.g + 10
+        adj.h = self.get_heuristic(adj)
+        adj.parent = cell
+        adj.f = adj.h + adj.g
 
     def update(self):
         """
@@ -159,3 +169,22 @@ class StarSearch(object):
         else:
             return
 
+
+class FloodFill(Search):
+    def __init__(self, world, screen):
+        super().__init__(world, screen)
+        self.opened = [self.start]
+
+    def update(self):
+        if not self.path:
+            cell = self.opened.pop(0)
+            self.closed.add(cell)
+            self.draw_cell(cell, BLUE)
+            if cell is self.end:
+                self.get_path()
+                self.solved = True
+            for reachable, neighbor in self.get_reachable(cell):
+                if reachable and neighbor not in self.closed:
+                    self.update_cell(cell, neighbor)
+                    self.draw_cell(neighbor, GREEN)
+                    self.opened.append(neighbor)

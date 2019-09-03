@@ -12,6 +12,7 @@ class Cell:
         self.is_start = False
         self.is_end = False
         self.visited = False
+        self.parent = None
         # [0] = x, [1] = y
         self.position = (pos % MAZE_WIDTH, floor(pos / MAZE_WIDTH))
         self.draw_position = (-1, -1)
