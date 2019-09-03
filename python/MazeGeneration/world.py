@@ -1,9 +1,11 @@
 from math import floor, sqrt
 from random import randint
+# I'm pretty sure wildcard imports are bad?
+from mazeglobals import *
 
 
 class Cell:
-    def __init__(self, pos, maze_width):
+    def __init__(self, pos):
         # Base Cell class other cells will morph if needed by a search type
         self.id = pos
         self.neighbors = []
@@ -11,7 +13,7 @@ class Cell:
         self.is_end = False
         self.visited = False
         # [0] = x, [1] = y
-        self.position = (pos % maze_width, floor(pos / maze_width))
+        self.position = (pos % MAZE_WIDTH, floor(pos / MAZE_WIDTH))
         self.draw_position = (-1, -1)
         # East and South
         # We do not need to care about all directions on each cell as wither it's neighbors will handle that
@@ -31,23 +33,16 @@ class Cell:
 
 
 class World:
-    def __init__(self, maze_width, maze_height, wall_width, path_width):
-        self.cells = [Cell(i, maze_width) for i in range(maze_width * maze_height)]
-        self.maze_height = maze_height
-        self.maze_width = maze_width
-        self.wall_width = wall_width
-        self.path_width = path_width
-        self.start = 0  # randint(0, maze_width * maze_height)
-        self.end = maze_width * maze_height - 1  # randint(0, maze_width * maze_height)
+    def __init__(self):
+        self.cells = [Cell(i) for i in range(MAZE_WIDTH * MAZE_HEIGHT)]
+        self.start = randint(0, MAZE_WIDTH * MAZE_HEIGHT)
+        self.end = randint(0, MAZE_WIDTH * MAZE_HEIGHT) # MAZE_WIDTH * MAZE_HEIGHT - 1
         self.cells[self.start].is_start = True
         self.cells[self.end].is_end = True
-        self.config_cells()
-
-    def config_cells(self):
         for cell in self.cells:
-            cell.populate_neighbors(self.maze_width, self.maze_height, self.cells)
-            cell.draw_position = (cell.position[0] * (self.wall_width + self.path_width) + sqrt(self.path_width),
-                                  cell.position[1] * (self.wall_width + self.path_width) + sqrt(self.path_width))
+            cell.populate_neighbors(MAZE_WIDTH, MAZE_HEIGHT, self.cells)
+            cell.draw_position = (cell.position[0] * (WALL_WIDTH + PATH_WIDTH) + sqrt(PATH_WIDTH),
+                                  cell.position[1] * (WALL_WIDTH + PATH_WIDTH) + sqrt(PATH_WIDTH))
 
     def update(self, stack):
         this_cell = stack[-1]
@@ -57,9 +52,9 @@ class World:
             stack.pop()
             return
         next_cell = possible_next_cells[randint(0, len(possible_next_cells) - 1)]
-        if next_cell.id - self.maze_width == this_cell.id:
+        if next_cell.id - MAZE_WIDTH == this_cell.id:
             this_cell.path[1] = True
-        elif next_cell.id + self.maze_width == this_cell.id:
+        elif next_cell.id + MAZE_WIDTH == this_cell.id:
             next_cell.path[1] = True
         elif next_cell.id + 1 == this_cell.id:
             next_cell.path[0] = True
