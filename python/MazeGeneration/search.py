@@ -178,7 +178,11 @@ class FloodFill(Search):
 
     def update(self):
         if not self.path:
-            cell = self.opened.pop(0)
+            cell = self.opened[0]
+            self.opened.remove(cell)
+            # We need this if check since random_paths can create loops, this stops circular paths
+            if cell in self.closed:
+                return
             self.closed.add(cell)
             self.draw_cell(cell, BLUE)
             if cell is self.end:

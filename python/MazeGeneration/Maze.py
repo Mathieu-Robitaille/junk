@@ -120,7 +120,7 @@ def make_maze():
     # TODO: Proper input handling
     # search_type = input("\nAvailable search types are : \n\n\t1) A* Search\n\t2) Flood fill\n\t"
     #                     "Please make your selection by entering a number -> ")
-    PyGameObj("1", random_paths=True, verbose=True).run()
+    PyGameObj("2", random_paths=True, verbose=True).run()
 
 
 if __name__ == "__main__":
