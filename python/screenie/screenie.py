@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import datetime
 import json
 import os
@@ -6,7 +8,10 @@ import subprocess
 import sys
 from time import sleep
 
-from colorama import Fore, Back, Style
+try:
+    from colorama import Fore, Back, Style
+except ImportError:
+    print("Could not import colorama, please install it \n\t pip3 install colorama")
 
 LINUX = False
 if sys.platform.startswith("linux"):
