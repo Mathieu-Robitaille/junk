@@ -32,20 +32,22 @@ class Cell(WorldCell):
 class StarSearch(object):
     def __init__(self, world, screen):
         # Init the search, we need to rebuild the set of cells as they need more info stored in them
-        self.world = world
         self.path = []
         self.opened = []
-        heapq.heapify(self.opened)
-        self.cells = [Cell(c) for c in self.world.cells]
         self.closed = set()
-        self.start = self.cells[self.world.start]
-        self.end = self.cells[self.world.end]
+        self.solved = False
         self.screen = screen
+        heapq.heapify(self.opened)
+        self.world = world
+        self.cells = [Cell(c) for c in self.world.cells]
+        self.end = self.cells[self.world.end]
+        self.start = self.cells[self.world.start]
         # This may not be the best way to do this.
         for cell in self.cells:
-            cell.populate_neighbors(MAZE_WIDTH, MAZE_HEIGHT, self.cells)
-            cell.draw_position = (cell.position[0] * (WALL_WIDTH + PATH_WIDTH),
-                                  cell.position[1] * (WALL_WIDTH + PATH_WIDTH))
+            cell.populate_neighbors(self.cells)
+            cell.draw_position = (cell.position[0] * DRAW_OFFSET,
+                                  cell.position[1] * DRAW_OFFSET)
+        heapq.heappush(self.opened, (self.start.f, self.start))
 
     def get_heuristic(self, cell):
         """
@@ -98,6 +100,14 @@ class StarSearch(object):
                 east = (True if cell.path[0] else False, neighbor)
         return [north, east, south, west]
 
+    def draw_cell(self, cell, color=WHITE, update=False):
+        pygame.draw.rect(self.screen, color,
+                         (cell.draw_position[0] + (PATH_WIDTH / 4),
+                          cell.draw_position[1] + (PATH_WIDTH / 4),
+                          PATH_WIDTH, PATH_WIDTH))
+        if update:
+            pygame.display.update()
+
     def draw(self):
         for cell in self.cells:
             if cell in self.closed:
@@ -106,40 +116,35 @@ class StarSearch(object):
                     color = BLUE
                 if cell is self.end:
                     color = RED
-                pygame.draw.rect(self.screen, color,
-                                 (cell.draw_position[0] + (PATH_WIDTH / 4),
-                                  cell.draw_position[1] + (PATH_WIDTH / 4),
-                                  PATH_WIDTH, PATH_WIDTH))
-        divisions = 255 / len(self.path)
-        color = RED
-        for cell in self.path:
-            if cell.parent is None:
-                continue
-            color = (color[0] - divisions if color[0] - divisions > 0 else 0, 0,
-                     color[2] + divisions if color[2] + divisions < 255 else 255)
-            pygame.draw.line(self.screen, color,
-                             (cell.draw_position[0] + PATH_WIDTH / 2 + 3,
-                              cell.draw_position[1] + PATH_WIDTH / 2 + 3),
-                             (cell.parent.draw_position[0] + PATH_WIDTH / 2 + 3,
-                              cell.parent.draw_position[1] + PATH_WIDTH / 2 + 3),
-                             floor(WALL_WIDTH / 2))
+                self.draw_cell(cell, color)
+        if self.path:
+            divisions = 255 / len(self.path)
+            color = RED
+            for cell in self.path:
+                if cell.parent is None:
+                    continue
+                color = (color[0] - divisions if color[0] - divisions > 0 else 0, 0,
+                         color[2] + divisions if color[2] + divisions < 255 else 255)
+                pygame.draw.line(self.screen, color,
+                                 (cell.draw_position[0] + PATH_WIDTH / 2 + 3,
+                                  cell.draw_position[1] + PATH_WIDTH / 2 + 3),
+                                 (cell.parent.draw_position[0] + PATH_WIDTH / 2 + 3,
+                                  cell.parent.draw_position[1] + PATH_WIDTH / 2 + 3),
+                                 floor(WALL_WIDTH / 2))
 
-    def solve(self):
+    def update(self):
         """
         The big worky worky bit
         Iterates over each cell, working with the most efficient path via the heapq sorting the
-        lowest costing cell to the top to be evaluated next.
-        This algo may need to be re-evaluated as it may be incomplete in its function
-        It may not evaluate all possible paths, returning the most efficient
-        (This was written over 3 years ago by myself as a first project to learn python)
-        :return: (True, [path])
+        lowest costing (f) cell to the top to be evaluated next.
         """
-        heapq.heappush(self.opened, (self.start.f, self.start))
-        while len(self.opened):
+        if not self.path:
             f, cell = heapq.heappop(self.opened)
             self.closed.add(cell)
             if cell is self.end:
-                return True, self.get_path()
+                self.get_path()
+                self.solved = True
+            self.draw_cell(cell, BLUE)
             neighbors = self.get_reachable(cell)
             for reachable, neighbor in neighbors:
                 if reachable and neighbor not in self.closed:
@@ -150,3 +155,7 @@ class StarSearch(object):
                         # Something isnt right here....?
                         self.update_cell(neighbor, cell)
                         heapq.heappush(self.opened, (neighbor.f, neighbor))
+                    self.draw_cell(neighbor, GREEN)
+        else:
+            return
+

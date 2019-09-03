@@ -20,14 +20,14 @@ class Cell:
         # or it does not have neighbors in that direction
         self.path = [False, False]
 
-    def populate_neighbors(self, w, h, cells):
+    def populate_neighbors(self, cells):
         # Check if the cell has neighbors in each cardinal direction
         # then assigns them as its neighbors or None keeping indexing as an option for referencing
         # direction, ex: north = 0 cell.neighbors[north]
         # (This is not implemented yet. However, it will add an additional layer of clarity to the code)
-        north = self.id - w if self.position[1] > 0 else None
-        east = self.id + 1 if self.position[0] < w - 1 else None
-        south = self.id + w if self.position[1] < h - 1 else None
+        north = self.id - MAZE_WIDTH if self.position[1] > 0 else None
+        east = self.id + 1 if self.position[0] < MAZE_WIDTH - 1 else None
+        south = self.id + MAZE_WIDTH if self.position[1] < MAZE_HEIGHT - 1 else None
         west = self.id - 1 if self.position[0] > 0 else None
         self.neighbors = [cells[i] for i in [north, east, south, west] if i is not None]
 
@@ -40,9 +40,9 @@ class World:
         self.cells[self.start].is_start = True
         self.cells[self.end].is_end = True
         for cell in self.cells:
-            cell.populate_neighbors(MAZE_WIDTH, MAZE_HEIGHT, self.cells)
-            cell.draw_position = (cell.position[0] * (WALL_WIDTH + PATH_WIDTH) + sqrt(PATH_WIDTH),
-                                  cell.position[1] * (WALL_WIDTH + PATH_WIDTH) + sqrt(PATH_WIDTH))
+            cell.populate_neighbors(self.cells)
+            cell.draw_position = (cell.position[0] * DRAW_OFFSET + sqrt(PATH_WIDTH),
+                                  cell.position[1] * DRAW_OFFSET + sqrt(PATH_WIDTH))
 
     def update(self, stack):
         this_cell = stack[-1]

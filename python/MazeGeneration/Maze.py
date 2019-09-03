@@ -4,12 +4,9 @@
 
 # Possible optimisations :
 # Use A* cells on initial world generation if A* is the search algo being used
-
+# TODO: Add node based pathing, ex: a long corridor with no branches could have each end be neighbors of each other
 
 import sys
-import time
-from math import floor
-
 import pygame
 
 from search import StarSearch
@@ -18,16 +15,11 @@ from world import World
 from mazeglobals import *
 
 
-# Declare global vars, some of these may be better suited being placed elsewhere
-# ex: the width vars could be set as defaults for make maze, then use sys.args
-# to populate the vars from command line if we want something different
-
-
 class PyGameObj(object):
     def __init__(self, search_type):
         # Set up the core object used to draw to the screen and hold the maze data
         pygame.init()
-        pygame.display.set_caption("Cunning-Journeyman's Maze Generation")
+        pygame.display.set_caption("Mathieu Robitaille's Maze Generation")
         self.screen = pygame.display.set_mode(
             (MAZE_WIDTH * (WALL_WIDTH + PATH_WIDTH),
              MAZE_HEIGHT * (WALL_WIDTH + PATH_WIDTH)))
@@ -35,29 +27,32 @@ class PyGameObj(object):
         self.stack = [self.w.cells[0]]
         self.search_type = search_type
         self.search = None
+        self.solved = False
 
     def run(self, verbose):
         # This holds the main while loop for the maze generation and the control logic for which
         # search algorithm will solve the maze
         while True:
             self.event_loop()
-            if len(self.stack) > 0:
-                self.update()
-            else:
+            if len(self.stack) == 0:
                 self.search_picker()
+            if verbose or self.search is not None:
                 self.draw()
-                self.search.draw()
-                pygame.display.update()
-                return
-            if verbose:
-                self.draw()
-                pygame.display.update()
+                if self.search is not None:
+                    self.search.draw()
+            # Place update call here as update may have some specific
+            # draw calls to make we do not want over write
+            self.update()
+            pygame.display.update()
 
     def event_loop(self):
         # Check if the user is trying to exit the pygame instance
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key in (pygame.K_ESCAPE, pygame.K_BACKSPACE):
+                    sys.exit()
 
     def draw(self):
         # Fairly bloated draw cycle.
@@ -98,21 +93,30 @@ class PyGameObj(object):
         # The search algo should draw its own solution
 
     def search_picker(self):
+        if self.search is not None:
+            return
         # Only one pathing algo right now
-        if self.search_type == "Star":
+        if self.search_type in ("star", "1"):
             self.search = StarSearch(self.w, self.screen)
-            self.search.solve()
+        elif self.search_type in ("flood", "2"):
+            return
 
     def update(self):
         # Very simple update cycle as of now.
         # This is where it would make sense to put pathing algo updates
         # with algos like flood fill or breadth/depth first allowing us to
         # see the path being built
-        self.w.update(self.stack)
+        if len(self.stack) > 0:
+            self.w.update(self.stack)
+        else:
+            self.search.update()
 
 
 def make_maze():
-    PyGameObj("Star").run(True)
+    # TODO: Proper input handling
+    # search_type = input("\nAvailable search types are : \n\n\t1) A* Search\n\t2) Flood fill\n\t"
+    #                     "Please make your selection by entering a number -> ")
+    PyGameObj("star").run(verbose=True)
 
 
 if __name__ == "__main__":
