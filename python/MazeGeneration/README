@@ -1,0 +1,11 @@
+!!! Requires pygame !!!
+
+
+This is a maze generation and solving set of algorithms.
+Initially written as a self challenge to create then solve mazes in one day, it has since grown.
+
+Right now there are A* and flood fill searches, you can use the up and down arrowkeys to alternate between the two.
+These happen simultaniously allowing you to view the speed differences.
+
+mazeglobals.py contains all varriables for the generation itself.
+
