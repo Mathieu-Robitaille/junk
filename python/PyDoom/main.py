@@ -4,13 +4,12 @@ from game import Game
 from menu import Menu
 
 import pygame as pg
-import game
-import menu
 import sys
 
 
 class Doom(PyDoom):
     def __init__(self):
+        # Init pygame so we can use the display
         pg.init()
 
         # If the pygame font requirements are present instantiate the fonts
@@ -30,8 +29,6 @@ class Doom(PyDoom):
         # Defaulting the game to start at the menu screen so we have the option to
         # load the previous game save, change options, etc...
         self.active = SCREEN_MENU
-
-
 
     def draw(self, surface):
         super().draw(surface)
