@@ -1,5 +1,6 @@
 from math import cos, sin, pi
-
+import pygame as pg
+from globals import *
 
 def points_in_circum(offset=0, radius=100, n=100):
     """
@@ -18,3 +19,26 @@ def points_in_circum(offset=0, radius=100, n=100):
             for x in range(0, n + 1)]
 
 
+def draw_level(game, surface):
+    pass
+
+
+def draw_minimap(game, surface):
+    for i in game.level.map:
+        pg.draw.rect(surface, pg.Color("white"),
+                     (i.position[0] * CELL_SPACING + PATH_OFFSET,
+                      i.position[1] * CELL_SPACING + PATH_OFFSET,
+                      CELL_SPACING / 2,
+                      CELL_SPACING / 2))
+        if i.path[0]:
+            pg.draw.rect(surface, pg.Color("white"),
+                         (i.position[0] * CELL_SPACING + PATH_OFFSET + (CELL_SPACING / 8),
+                          i.position[1] * CELL_SPACING + PATH_OFFSET,
+                          CELL_SPACING / 4,
+                          CELL_SPACING))
+        if i.path[1]:
+            pg.draw.rect(surface, pg.Color("white"),
+                         (i.position[0] * CELL_SPACING + PATH_OFFSET,
+                          i.position[1] * CELL_SPACING + PATH_OFFSET + (CELL_SPACING / 8),
+                          CELL_SPACING,
+                          CELL_SPACING / 4))

@@ -3,17 +3,18 @@ from globals import *
 from pydoom import PyDoom
 from level import Level
 from entity import Player
+from render_manager import draw_level
 
 
 class Game(PyDoom):
     def __init__(self):
         super().__init__()
-        self.current_level = Level()
+        self.level = Level()
         self.player = Player()
 
     def draw(self, surface):
-        # NOT THE WAY TO GO, THIS SHOULD BE A CALL TO THE RENDER MANAGER
-        self.current_level.draw(surface)
+        # Hand off the render responsibilities to the render manager
+        draw_level(self, surface)
 
     def event(self, event):
         super().event(event)

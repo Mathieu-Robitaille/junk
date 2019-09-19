@@ -66,31 +66,10 @@ def create_world():
     return cells
 
 
-class Level(PyDoom):
+class Level():
     def __init__(self):
         super().__init__()
         # Width, Height
         self.map = create_world()
 
-    def draw(self, surface):
-        super().draw(surface)
-        # NOT AT ALL THE WAY THIS SHOULD BE
-        for i in self.map:
-            pg.draw.rect(surface, pg.Color("white"),
-                         (i.position[0] * CELL_SPACING + PATH_OFFSET,
-                          i.position[1] * CELL_SPACING + PATH_OFFSET,
-                          CELL_SPACING / 2,
-                          CELL_SPACING / 2))
-            if i.path[0]:
-                pg.draw.rect(surface, pg.Color("white"),
-                             (i.position[0] * CELL_SPACING + PATH_OFFSET,
-                              i.position[1] * CELL_SPACING + PATH_OFFSET,
-                              CELL_SPACING / 4,
-                              CELL_SPACING))
-            if i.path[1]:
-                pg.draw.rect(surface, pg.Color("white"),
-                             (i.position[0] * CELL_SPACING + PATH_OFFSET,
-                              i.position[1] * CELL_SPACING + PATH_OFFSET,
-                              CELL_SPACING,
-                              CELL_SPACING / 4))
 
