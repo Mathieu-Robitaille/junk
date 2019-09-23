@@ -52,9 +52,12 @@ def draw_level(game, surface):
                 # We just hit a wall, set the appropriate flag
                 hitwall = True
         if hitwall:
+            # Calculate the top of the walls based off the screen
             ceiling = fabs((SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distancetowall)
+            # Calc the floor
             floor = SCREEN_HEIGHT - ceiling
 
+            # Force the value inbetween 0-255
             val = (255 / distancetowall if 255 / distancetowall > 0 else 0) % 255
             # CHANGE COLOR TO A TEXTURE BLIT
             color = (val, val, val)
@@ -64,8 +67,24 @@ def draw_level(game, surface):
             pg.draw.rect(surface, pg.Color("green"),
                          (i, SCREEN_HEIGHT / 4, SCREEN_RAYSPLIT, SCREEN_HEIGHT /2))
 
-
+    draw_textminimap(game, surface)
     #draw_minimap(game, surface)
+
+
+def draw_textminimap(game, surface):
+    map = game.level.map
+    for i in range(len(map)):
+        x = MINI_MAP_OFFSET + ((i % LEVEL_SIZE) * CELL_SPACING + PATH_OFFSET)
+        y = (i / LEVEL_SIZE) * CELL_SPACING + PATH_OFFSET
+        if map[i] == "#":
+            pg.draw.rect(surface, pg.Color("white"),
+                         (x, y,
+                          CELL_SPACING / 2, CELL_SPACING / 2))
+
+    playerx = int(MINI_MAP_OFFSET + (game.player.pos[0] * CELL_SPACING + PATH_OFFSET))
+    playery = int((game.player.pos[1] * CELL_SPACING + PATH_OFFSET))
+    pg.draw.circle(surface, pg.Color("red"),
+                   (playerx, playery), 1)
 
 
 def draw_minimap(game, surface):
