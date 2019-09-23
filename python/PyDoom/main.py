@@ -19,6 +19,13 @@ class Doom(PyDoom):
 
         super().__init__()
 
+
+        # Object to govern game time
+        self.clock = pg.time.Clock()
+
+        # Value with which to calculate physics
+        self.frame_time = 0.0
+
         # Init the display
         self.surface = pg.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
@@ -40,9 +47,11 @@ class Doom(PyDoom):
 
     def run(self):
         while True:
+            self.clock.tick()
+            self.frame_time = self.clock.get_time() / 1000
             super().run()
             for event in pg.event.get():
-                self.event(event)
+                self.event(event, self.frame_time)
             # Update the currently active screen
             self.update()
             self.draw(self.surface)
@@ -51,7 +60,7 @@ class Doom(PyDoom):
         super().update()
         self.screens[self.active].update()
 
-    def event(self, event):
+    def event(self, event, timer):
         if event.type == pg.QUIT:
             # We may want to change this to a method giving the player an option to say no
             # in the event this was selected by accident
@@ -66,7 +75,7 @@ class Doom(PyDoom):
         # THIS NEEDS TO CHANGE, RIGHT NOW IT WILL ALLOW
         # THE USER TO CHANGE BACK AND FORTH BETWEEN SCREENS
         # JUST BY PLAYING THE GAME
-        self.screens[self.active].event(event)
+        self.screens[self.active].event(event, timer)
 
     def change_to_menu(self):
         self.active = SCREEN_MENU

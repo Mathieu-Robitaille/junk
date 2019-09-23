@@ -11,5 +11,5 @@ class PyDoom:
     def update(self):
         pass
 
-    def event(self, event):
+    def event(self, event, timer):
         pass

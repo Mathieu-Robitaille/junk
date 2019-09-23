@@ -1,6 +1,6 @@
 import pygame as pg
 
-from math import pi
+from math import pi, cos, sin
 from globals import PLAYER_TEAM
 
 
@@ -10,14 +10,28 @@ class Entity:
         self.pos = pos
         # This entity's facing angle
         self.angle = pi / 2
-        #
+
+        # The players FOV
         self.fov = pi / 4
+
         # This entity's sprite (Image Utilities are not implemented yet)
         #self.sprite = iu.images[sprite]
         self.team = team
 
+        # local variable for time between things
+        self.tick = 0.0
+
+        self.dead = False
+
+        # List for W, A, S, D
+        self.wasd_held = [False, False, False, False]
         #
         self.health = 100
+
+    def update(self):
+        if self.health < 0:
+            self.dead = True
+        self.move()
 
     def do_damage(self, target, amount):
         pass
@@ -27,6 +41,9 @@ class Entity:
 
     def move(self):
         pass
+
+    def event(self, event, timer):
+        self.tick = timer
 
 
 class Player(Entity):
@@ -39,22 +56,26 @@ class Player(Entity):
     def damage(self):
         pass
 
-    def move(self, direction="forward", amount=0.1):
-        if direction == "forward":
-            self.pos = (self.pos[0], self.pos[1] + amount)
-        if direction == "left":
-            self.angle -= 0.1
-        if direction == "back":
-            self.pos = (self.pos[0], self.pos[1] - amount)
-        if direction == "right":
-            self.angle += 0.1
+    def move(self):
+        if self.wasd_held[0]:
+            self.pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
+                        self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
+        if self.wasd_held[1]:
+            self.angle -= 1.0 * self.tick
+        if self.wasd_held[2]:
+            self.pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
+                        self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
+        if self.wasd_held[3]:
+            self.angle += 1.0 * self.tick
 
-    def event(self, event):
-        if event.key == pg.K_w:
-            self.move("forward")
-        if event.key == pg.K_a:
-            self.move("left")
-        if event.key == pg.K_s:
-            self.move("back")
-        if event.key == pg.K_d:
-            self.move("right")
+    def event(self, event, timer):
+        super().event(event, timer)
+        if event.type in (pg.KEYDOWN, pg.KEYUP):
+            if event.key == pg.K_w:
+                self.wasd_held[0] = not self.wasd_held[0]
+            if event.key == pg.K_a:
+                self.wasd_held[1] = not self.wasd_held[1]
+            if event.key == pg.K_s:
+                self.wasd_held[2] = not self.wasd_held[2]
+            if event.key == pg.K_d:
+                self.wasd_held[3] = not self.wasd_held[3]

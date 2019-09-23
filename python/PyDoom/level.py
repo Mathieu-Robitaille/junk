@@ -85,3 +85,6 @@ class Level():
             "################"
         ])
         # self.map = create_world()
+
+    def update(self):
+        pass

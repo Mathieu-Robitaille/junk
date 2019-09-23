@@ -23,32 +23,41 @@ def points_in_circum(offset=0, radius=100, n=100):
 
 
 def draw_level(game, surface):
+    # localise these vars as its better practice and python accesses local variables faster
     playerposx, playerposy = game.player.pos
     playerangle = game.player.angle
     playerfov = game.player.fov
+
     for i in range(int(SCREEN_WIDTH / SCREEN_RAYSPLIT)):
+        # Get the angle we want to cast to
         rayangle = (playerangle - playerfov / 2.0) + (float(i) / float(SCREEN_WIDTH) * playerfov)
+
+        # float to hold the distance to the wall we're raycasting towards
         distancetowall = 0.0
+
+        # Check if we hit a wall, if we did this is the flag to break the while loop
         hitwall = False
 
-        eyex = sin(rayangle)
-        eyey = cos(rayangle)
+        # Get the X and Y vectors
+        lookx = sin(rayangle)
+        looky = cos(rayangle)
 
         while not hitwall and distancetowall < RAYCASTING_DEPTH:
             distancetowall += 0.1
 
-            testx = int(playerposx + eyex * distancetowall)
-            testy = int(playerposy + eyey * distancetowall)
+            testx = int(playerposx + lookx * distancetowall)
+            testy = int(playerposy + looky * distancetowall)
 
             if game.level.map[int(testy * game.level.width + testx)] == "#":
-                # Hit wall
+                # We just hit a wall, set the appropriate flag
                 hitwall = True
         if hitwall:
             ceiling = fabs((SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distancetowall)
             floor = SCREEN_HEIGHT - ceiling
-            color = (255 / distancetowall,
-                     255 / distancetowall,
-                     255 / distancetowall)
+
+            val = (255 / distancetowall if 255 / distancetowall > 0 else 0) % 255
+            # CHANGE COLOR TO A TEXTURE BLIT
+            color = (val, val, val)
             pg.draw.rect(surface, color,
                          (i, ceiling, SCREEN_RAYSPLIT, floor - ceiling))
         else:

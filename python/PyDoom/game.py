@@ -16,8 +16,13 @@ class Game(PyDoom):
         # Hand off the render responsibilities to the render manager
         draw_level(self, surface)
 
-    def event(self, event):
-        super().event(event)
-        if event.type == pg.KEYDOWN:
-            if event.key in (pg.K_w, pg.K_a, pg.K_s, pg.K_d):
-                self.player.event(event)
+    def update(self):
+        super().update()
+
+        # Globalupdate order should be Level, entities
+        self.level.update()
+        self.player.update()
+
+    def event(self, event, timer):
+        super().event(event, timer)
+        self.player.event(event, timer)

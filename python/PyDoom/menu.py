@@ -10,5 +10,5 @@ class Menu(PyDoom):
         for i in points_in_circum(300, 100):
             pg.draw.circle(surface, pg.Color("green"), (int(i[0]), int(i[1])), 1)
 
-    def event(self, event):
+    def event(self, event, timer=0.0):
         pass
