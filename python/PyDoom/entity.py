@@ -1,11 +1,11 @@
 import pygame as pg
 
 from math import pi, cos, sin
-from globals import PLAYER_TEAM
+from globals import PLAYER_TEAM, LEVEL_SIZE
 
 
 class Entity:
-    def __init__(self, pos, sprite, team):
+    def __init__(self, pos, sprite, team, game):
         # This entity's position
         self.pos = pos
         # This entity's facing angle
@@ -22,6 +22,8 @@ class Entity:
         self.tick = 0.0
 
         self.dead = False
+
+        self.game = game
 
         # List for W, A, S, D
         self.wasd_held = [False, False, False, False]
@@ -45,10 +47,13 @@ class Entity:
     def event(self, event, timer):
         self.tick = timer
 
+    def move_check(self, pos):
+        return False if self.game.level.map[int(pos[0] * LEVEL_SIZE + pos[1])] == "#" else True
+
 
 class Player(Entity):
-    def __init__(self):
-        super().__init__((3.0, 3.0), None, PLAYER_TEAM)
+    def __init__(self, game):
+        super().__init__(pos=(3.0, 3.0), sprite=None, team=PLAYER_TEAM, game=game)
 
     def do_damage(self, target, amount):
         pass
@@ -58,13 +63,16 @@ class Player(Entity):
 
     def move(self):
         if self.wasd_held[0]:
-            self.pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
-                        self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
+            tmp_pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
+                       self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
+            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
         if self.wasd_held[1]:
             self.angle -= 1.0 * self.tick
         if self.wasd_held[2]:
-            self.pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
-                        self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
+            tmp_pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
+                       self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
+            self.move_check(tmp_pos)
+            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
         if self.wasd_held[3]:
             self.angle += 1.0 * self.tick
 

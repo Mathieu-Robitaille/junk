@@ -74,7 +74,7 @@ def draw_level(game, surface):
 def draw_textminimap(game, surface):
     map = game.level.map
     for i in range(len(map)):
-        x = MINI_MAP_OFFSET + ((i % LEVEL_SIZE) * CELL_SPACING + PATH_OFFSET)
+        x = MINI_MAP_OFFSET + ((i % LEVEL_SIZE) * CELL_SPACING) + PATH_OFFSET
         y = (i / LEVEL_SIZE) * CELL_SPACING + PATH_OFFSET
         if map[i] == "#":
             pg.draw.rect(surface, pg.Color("white"),

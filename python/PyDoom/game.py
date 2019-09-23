@@ -10,7 +10,7 @@ class Game(PyDoom):
     def __init__(self):
         super().__init__()
         self.level = Level()
-        self.player = Player()
+        self.player = Player(self)
 
     def draw(self, surface):
         # Hand off the render responsibilities to the render manager

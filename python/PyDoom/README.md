@@ -15,7 +15,8 @@ Build parser for generated map to level
 Build mini-map in top left corner for debugging
 Build a sprite loader
 
-
+MAP MOVEMENT IS MESSED UP RN, High prio
+Maybe x, y are flipped?
 
 
 
