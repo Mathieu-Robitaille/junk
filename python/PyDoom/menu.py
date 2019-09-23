@@ -1,8 +1,5 @@
-import pygame as pg
-
-from render_manager import *
 from pydoom import PyDoom
-from globals import *
+from render_manager import *
 
 
 class Menu(PyDoom):

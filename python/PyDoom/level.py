@@ -1,9 +1,7 @@
 from math import floor
-from globals import *
 from random import randint
-from pydoom import PyDoom
 
-import pygame as pg
+from globals import *
 
 
 class Cell:
@@ -57,11 +55,11 @@ def create_world():
         if randint(0, 100) > 100 - PATH_CHANCE:
             if randint(0, 100) > PATH_DIRECTION_CHANCE:
                 # east
-                if not cell.position[0] + 1 == LEVEL_SIZE:
+                if cell.position[0] < LEVEL_SIZE - 1:
                     cell.path[0] = True
             else:
                 # south
-                if not cell.position[1] + 1 == LEVEL_SIZE:
+                if cell.position[1] < LEVEL_SIZE - 1:
                     cell.path[1] = True
     return cells
 
@@ -70,6 +68,20 @@ class Level():
     def __init__(self):
         super().__init__()
         # Width, Height
-        self.map = create_world()
-
-
+        self.width = 16
+        self.height = 12
+        self.map = "".join([
+            "################",
+            "#      ##### # #",
+            "#       #### # #",
+            "#        #     #",
+            "#           #  #",
+            "#  ####   ###  #",
+            "#           #  #",
+            "#  #####    #  #",
+            "#           #  #",
+            "#    #         #",
+            "#              #",
+            "################"
+        ])
+        # self.map = create_world()

@@ -1,6 +1,9 @@
-from math import cos, sin, pi
+from math import cos, sin, pi, fabs
+
 import pygame as pg
+
 from globals import *
+
 
 def points_in_circum(offset=0, radius=100, n=100):
     """
@@ -20,25 +23,64 @@ def points_in_circum(offset=0, radius=100, n=100):
 
 
 def draw_level(game, surface):
-    pass
+    playerposx, playerposy = game.player.pos
+    playerangle = game.player.angle
+    playerfov = game.player.fov
+    for i in range(int(SCREEN_WIDTH / SCREEN_RAYSPLIT)):
+        rayangle = (playerangle - playerfov / 2.0) + (float(i) / float(SCREEN_WIDTH) * playerfov)
+        distancetowall = 0.0
+        hitwall = False
+
+        eyex = sin(rayangle)
+        eyey = cos(rayangle)
+
+        while not hitwall and distancetowall < RAYCASTING_DEPTH:
+            distancetowall += 0.1
+
+            testx = int(playerposx + eyex * distancetowall)
+            testy = int(playerposy + eyey * distancetowall)
+
+            if game.level.map[int(testy * game.level.width + testx)] == "#":
+                # Hit wall
+                hitwall = True
+        if hitwall:
+            ceiling = fabs((SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distancetowall)
+            floor = SCREEN_HEIGHT - ceiling
+            color = (255 / distancetowall,
+                     255 / distancetowall,
+                     255 / distancetowall)
+            pg.draw.rect(surface, color,
+                         (i, ceiling, SCREEN_RAYSPLIT, floor - ceiling))
+        else:
+            pg.draw.rect(surface, pg.Color("green"),
+                         (i, SCREEN_HEIGHT / 4, SCREEN_RAYSPLIT, SCREEN_HEIGHT /2))
+
+
+    #draw_minimap(game, surface)
 
 
 def draw_minimap(game, surface):
     for i in game.level.map:
+        x = MINI_MAP_OFFSET + (i.position[0] * CELL_SPACING + PATH_OFFSET)
+        y = i.position[1] * CELL_SPACING + PATH_OFFSET
         pg.draw.rect(surface, pg.Color("white"),
-                     (i.position[0] * CELL_SPACING + PATH_OFFSET,
-                      i.position[1] * CELL_SPACING + PATH_OFFSET,
-                      CELL_SPACING / 2,
-                      CELL_SPACING / 2))
+                     (x, y,
+                      CELL_SPACING / 2, CELL_SPACING / 2))
         if i.path[0]:
             pg.draw.rect(surface, pg.Color("white"),
-                         (i.position[0] * CELL_SPACING + PATH_OFFSET + (CELL_SPACING / 8),
-                          i.position[1] * CELL_SPACING + PATH_OFFSET,
-                          CELL_SPACING / 4,
-                          CELL_SPACING))
+                         (x + (CELL_SPACING / 8), y,
+                          CELL_SPACING / 4, CELL_SPACING))
         if i.path[1]:
             pg.draw.rect(surface, pg.Color("white"),
-                         (i.position[0] * CELL_SPACING + PATH_OFFSET,
-                          i.position[1] * CELL_SPACING + PATH_OFFSET + (CELL_SPACING / 8),
-                          CELL_SPACING,
-                          CELL_SPACING / 4))
+                         (x, y + (CELL_SPACING / 8),
+                          CELL_SPACING, CELL_SPACING / 4))
+
+    # Draw player pos on map
+    try:
+        x = MINI_MAP_OFFSET + (game.player.pos[0] * CELL_SPACING + PATH_OFFSET)
+        y = game.player.pos[1] * CELL_SPACING + PATH_OFFSET
+        pg.draw.rect(surface, pg.Color("red"),
+                     (x, y,
+                      CELL_SPACING / 2, CELL_SPACING / 2))
+    except Exception as e:
+        print(e)

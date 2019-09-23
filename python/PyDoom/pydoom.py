@@ -1,4 +1,4 @@
-class PyDoom():
+class PyDoom:
     def __init__(self):
         pass
 
@@ -13,4 +13,3 @@ class PyDoom():
 
     def event(self, event):
         pass
-

@@ -1,10 +1,11 @@
-from globals import *
-from pydoom import PyDoom
-from game import Game
-from menu import Menu
+import sys
 
 import pygame as pg
-import sys
+
+from game import Game
+from globals import *
+from menu import Menu
+from pydoom import PyDoom
 
 
 class Doom(PyDoom):
@@ -60,11 +61,12 @@ class Doom(PyDoom):
                 self.change_to_game()
             if event.key == pg.K_1:
                 self.change_to_menu()
+            if event.key == pg.K_ESCAPE:
+                sys.exit()
         # THIS NEEDS TO CHANGE, RIGHT NOW IT WILL ALLOW
         # THE USER TO CHANGE BACK AND FORTH BETWEEN SCREENS
         # JUST BY PLAYING THE GAME
         self.screens[self.active].event(event)
-
 
     def change_to_menu(self):
         self.active = SCREEN_MENU
