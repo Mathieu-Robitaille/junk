@@ -4,6 +4,8 @@ import pygame as pg
 
 from globals import *
 
+edges = []
+
 
 def points_in_circum(offset=0, radius=100, n=100):
     """
@@ -24,13 +26,15 @@ def points_in_circum(offset=0, radius=100, n=100):
 
 def draw_level(game, surface):
     # localise these vars as its better practice and python accesses local variables faster
-    playerposx, playerposy = game.player.pos
+    # Expanded for clarity
+    playerposx = game.player.pos[0]
+    playerposy = game.player.pos[1]
     playerangle = game.player.angle
     playerfov = game.player.fov
 
     for i in range(int(SCREEN_WIDTH / SCREEN_RAYSPLIT)):
         # Get the angle we want to cast to
-        rayangle = (playerangle - playerfov / 2.0) + (float(i) / float(SCREEN_WIDTH) * playerfov)
+        rayangle = (playerangle - playerfov / 2.0) + float(i) / float(SCREEN_WIDTH) * playerfov
 
         # float to hold the distance to the wall we're raycasting towards
         distancetowall = 0.0
@@ -38,22 +42,26 @@ def draw_level(game, surface):
         # Check if we hit a wall, if we did this is the flag to break the while loop
         hitwall = False
 
-        # Get the X and Y vectors
+        # Get the direction vector the player is looking in
         lookx = sin(rayangle)
         looky = cos(rayangle)
 
         while not hitwall and distancetowall < RAYCASTING_DEPTH:
             distancetowall += 0.1
 
+            # TIME TO FIGURE OUT HOW TO DO INSIDE WALLS
+            # TODO: Change render engine to use edge finding and cast to those edges
+
             testx = int(playerposx + lookx * distancetowall)
             testy = int(playerposy + looky * distancetowall)
 
+            # This needs to change
             if game.level.map[int(testy * game.level.width + testx)] == "#":
                 # We just hit a wall, set the appropriate flag
                 hitwall = True
         if hitwall:
             # Calculate the top of the walls based off the screen
-            ceiling = fabs((SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distancetowall)
+            ceiling = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distancetowall
             # Calc the floor
             floor = SCREEN_HEIGHT - ceiling
 
@@ -67,24 +75,7 @@ def draw_level(game, surface):
             pg.draw.rect(surface, pg.Color("green"),
                          (i, SCREEN_HEIGHT / 4, SCREEN_RAYSPLIT, SCREEN_HEIGHT /2))
 
-    draw_textminimap(game, surface)
     #draw_minimap(game, surface)
-
-
-def draw_textminimap(game, surface):
-    map = game.level.map
-    for i in range(len(map)):
-        x = MINI_MAP_OFFSET + ((i % LEVEL_SIZE) * CELL_SPACING) + PATH_OFFSET
-        y = (i / LEVEL_SIZE) * CELL_SPACING + PATH_OFFSET
-        if map[i] == "#":
-            pg.draw.rect(surface, pg.Color("white"),
-                         (x, y,
-                          CELL_SPACING / 2, CELL_SPACING / 2))
-
-    playerx = int(MINI_MAP_OFFSET + (game.player.pos[0] * CELL_SPACING + PATH_OFFSET))
-    playery = int((game.player.pos[1] * CELL_SPACING + PATH_OFFSET))
-    pg.draw.circle(surface, pg.Color("red"),
-                   (playerx, playery), 1)
 
 
 def draw_minimap(game, surface):
@@ -112,3 +103,7 @@ def draw_minimap(game, surface):
                       CELL_SPACING / 2, CELL_SPACING / 2))
     except Exception as e:
         print(e)
+
+def edge_detection(game):
+    for cell in game.level.map:
+        pass
