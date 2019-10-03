@@ -32,7 +32,7 @@ def draw_level(game, surface):
     playerangle = game.player.angle
     playerfov = game.player.fov
 
-    for i in range(int(SCREEN_WIDTH / SCREEN_RAYSPLIT)):
+    for i in range(int(SCREEN_WIDTH / RENDER_SCREEN_RAYSPLIT)):
         # Get the angle we want to cast to
         rayangle = (playerangle - playerfov / 2.0) + float(i) / float(SCREEN_WIDTH) * playerfov
 
@@ -46,7 +46,7 @@ def draw_level(game, surface):
         lookx = sin(rayangle)
         looky = cos(rayangle)
 
-        while not hitwall and distancetowall < RAYCASTING_DEPTH:
+        while not hitwall and distancetowall < RENDER_RAYCASTING_DEPTH:
             distancetowall += 0.1
 
             # TIME TO FIGURE OUT HOW TO DO INSIDE WALLS
@@ -65,45 +65,51 @@ def draw_level(game, surface):
             # Calc the floor
             floor = SCREEN_HEIGHT - ceiling
 
-            # Force the value inbetween 0-255
+            # Force the color value inbetween 0-255
             val = (255 / distancetowall if 255 / distancetowall > 0 else 0) % 255
             # CHANGE COLOR TO A TEXTURE BLIT
             color = (val, val, val)
             pg.draw.rect(surface, color,
-                         (i, ceiling, SCREEN_RAYSPLIT, floor - ceiling))
+                         (i, ceiling, RENDER_SCREEN_RAYSPLIT, floor - ceiling))
         else:
             pg.draw.rect(surface, pg.Color("green"),
-                         (i, SCREEN_HEIGHT / 4, SCREEN_RAYSPLIT, SCREEN_HEIGHT /2))
+                         (i, SCREEN_HEIGHT / 4, RENDER_SCREEN_RAYSPLIT, SCREEN_HEIGHT /2))
 
     #draw_minimap(game, surface)
 
 
 def draw_minimap(game, surface):
     for i in game.level.map:
-        x = MINI_MAP_OFFSET + (i.position[0] * CELL_SPACING + PATH_OFFSET)
-        y = i.position[1] * CELL_SPACING + PATH_OFFSET
+        x = RENDER_MINI_MAP_OFFSET + (i.position[0] * LEVEL_CELL_SPACING + LEVEL_PATH_OFFSET)
+        y = i.position[1] * LEVEL_CELL_SPACING + LEVEL_PATH_OFFSET
         pg.draw.rect(surface, pg.Color("white"),
                      (x, y,
-                      CELL_SPACING / 2, CELL_SPACING / 2))
+                      LEVEL_CELL_SPACING / 2, LEVEL_CELL_SPACING / 2))
         if i.path[0]:
             pg.draw.rect(surface, pg.Color("white"),
-                         (x + (CELL_SPACING / 8), y,
-                          CELL_SPACING / 4, CELL_SPACING))
+                         (x + (LEVEL_CELL_SPACING / 8), y,
+                          LEVEL_CELL_SPACING / 4, LEVEL_CELL_SPACING))
         if i.path[1]:
             pg.draw.rect(surface, pg.Color("white"),
-                         (x, y + (CELL_SPACING / 8),
-                          CELL_SPACING, CELL_SPACING / 4))
+                         (x, y + (LEVEL_CELL_SPACING / 8),
+                          LEVEL_CELL_SPACING, LEVEL_CELL_SPACING / 4))
 
     # Draw player pos on map
     try:
-        x = MINI_MAP_OFFSET + (game.player.pos[0] * CELL_SPACING + PATH_OFFSET)
-        y = game.player.pos[1] * CELL_SPACING + PATH_OFFSET
+        x = RENDER_MINI_MAP_OFFSET + (game.player.pos[0] * LEVEL_CELL_SPACING + LEVEL_PATH_OFFSET)
+        y = game.player.pos[1] * LEVEL_CELL_SPACING + LEVEL_PATH_OFFSET
         pg.draw.rect(surface, pg.Color("red"),
                      (x, y,
-                      CELL_SPACING / 2, CELL_SPACING / 2))
+                      LEVEL_CELL_SPACING / 2, LEVEL_CELL_SPACING / 2))
     except Exception as e:
         print(e)
+
 
 def edge_detection(game):
     for cell in game.level.map:
         pass
+
+
+def shadow_cast(game):
+    pass
+

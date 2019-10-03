@@ -1,22 +1,61 @@
 from math import floor
-from random import randint
-
+from random import randint, choice
+import logger
 from globals import *
+
+class Room:
+    def __init__(self, room_id, top_left_cell_id):
+        self.top_left_cell_id = top_left_cell_id
+        self.id = room_id
+        self.limX, self.limY = sizer()
+        self.cells = []
+        self.starting_cell = self.getstarting_cell()
+        self.available_area = self.floodfill()
+        self.walls = set(self.cells) - self.available_area
+
+    def getstarting_cell(self):
+        for cell in self.cells:
+            if not cell.is_wall:
+                return cell
+
+    def floodfill(self):
+        contenders = [self.starting_cell]
+        result = [self.starting_cell]
+        while len(contenders) > 0:
+            cell = contenders.pop()
+            try:
+                if cell.visited or cell.is_wall:
+                    continue
+                cell.visited = True
+                if cell.id - self.limX >= 0:
+                    if not self.cells[cell.id - self.limX].is_wall:
+                        contenders.append(self.cells[cell.id - self.limX])
+                        result.append(self.cells[cell.id - self.limX])
+                if cell.id + self.limX < ROOM_SIZE:
+                    if not self.cells[cell.id + self.limX].is_wall:
+                        contenders.append(self.cells[cell.id + self.limX])
+                        result.append(self.cells[cell.id + self.limX])
+                if (cell.id % self.limX) + 1 < self.limX:
+                    if not self.cells[cell.id + 1].is_wall:
+                        contenders.append(self.cells[cell.id + 1])
+                        result.append(self.cells[cell.id + 1])
+                if (cell.id % self.limX) - 1 > 0:
+                    if not self.cells[cell.id - 1].is_wall:
+                        contenders.append(self.cells[cell.id - 1])
+                        result.append(self.cells[cell.id - 1])
+            except IndexError:
+                logger.log("Out of range error, cell_id : {}".format(cell.id))
+        return set(result)
 
 
 class Cell:
-    def __init__(self, pos, width, height):
-        # Base Cell class other cells will morph if needed by a search type
-        self.id = pos
-        self.neighbors = []
-        self.visited = True
-        self.level_width = width
-        self.level_height = height
-
+    def __init__(self, cell_id, level_width, level_height):
+        self.id = cell_id
+        self.level_width = level_width
+        self.level_height = level_height
 
         # [0] = x, [1] = y
-        self.position = (pos % self.level_width, floor(pos / self.level_width))
-
+        self.position = (cell_id % self.level_width, floor(cell_id / self.level_width))
         # Added expanded position variables for ease of use, We're keeping self.position
         # since it allows us to use old code without rewriting it immediately (This will need
         # to be re written)
@@ -24,69 +63,50 @@ class Cell:
         self.x = self.position[0]
         self.y = self.position[1]
 
-        # We need the corners of the cell so we can find the edges of the cell and path
-        # This is NOT the value that will be drawn, this WILL be passed off to a datastructure in
-        # the render manager that will handle screen orientation for us
-        # as such we leave it all empty
-        self.top_wall_id = 0
-        self.bottom_wall_id = 0
-        self.left_wall_id = 0
-        self.right_wall_id = 0
+        # The ID of the edge assigned to this cell for each cardinal direction
+        # order is always north, south, east, west
+        self.edge_id = [0, 0, 0, 0]
 
         # Edges in order of North, South, East, and West
         self.edges = [False, False, False, False]
 
-        # East and South
-        # We do not need to care about all directions on each cell as wither it's neighbors will handle that
-        # or it does not have neighbors in that direction
-        # TODO: maybe rethink this logic as it may be favorable for edge detection
-        self.path = [False, False]
+        # Is this a path between two rooms?
+        self.is_path = False
 
-    def populate_neighbors(self, cells):
-        # Check if the cell has neighbors in each cardinal direction
-        # then assigns them as its neighbors or None keeping indexing as an option for referencing
-        # direction, ex: north = 0 cell.neighbors[north]
-        # (This is not implemented yet. However, it will add an additional layer of clarity to the code)
-        north = self.id - self.level_width if self.position[1] > 0 else None
-        east = self.id + 1 if self.position[0] < self.level_width - 1 else None
-        south = self.id + self.level_width if self.position[1] < self.level_height - 1 else None
-        west = self.id - 1 if self.position[0] > 0 else None
-        self.neighbors = [cells[i] for i in [north, east, south, west] if i is not None]
+        # Is this a part of the level geometry the player can explore
+        self.is_wall = False
+
+        # is this cell part of a room
+        self.is_room = False
+
+        # Has room generation visited this cell?
+        self.visited = False
+
+        # Which room is this cell a part of?
+        self.room_id = 0
 
 
-def create_world(width, height):
-    cells = [Cell(i, width, height) for i in range(width * height)]
-    for cell in cells:
-        cell.populate_neighbors(cells)
-    stack = [cells[0]]
-    while stack:
-        this_cell = stack[-1]
-        this_cell.visited = True
-        possible_next_cells = [i for i in this_cell.neighbors if not i.visited and i is not None]
-        if len(possible_next_cells) == 0:
-            stack.pop()
+def create_world(w, h):
+    cells = [Cell(i, w, h) for i in range(LEVEL_SIZE)]
+    num_rooms = randint(ROOM_COUNT_MIN, ROOM_COUNT_MAX)
+    for i in range(num_rooms):
+        x, y = randint(1, w), randint(1, h)
+
+
+def sizer():
+    # Returns the (x, y) size max of a room
+    size = ROOM_SIZE + 1
+    result = []
+    for i in range(1, size):
+        n = size / i if size / i % 1 == 0 else None
+        if i < 3 or n < 3:
             continue
-        next_cell = possible_next_cells[randint(0, len(possible_next_cells) - 1)]
-        if next_cell.id - width == this_cell.id:
-            this_cell.path[1] = True
-        elif next_cell.id + width == this_cell.id:
-            next_cell.path[1] = True
-        elif next_cell.id + 1 == this_cell.id:
-            next_cell.path[0] = True
-        elif next_cell.id - 1 == this_cell.id:
-            this_cell.path[0] = True
-        stack.append(next_cell)
-    for cell in cells:
-        if randint(0, 100) > 100 - PATH_CHANCE:
-            if randint(0, 100) > PATH_DIRECTION_CHANCE:
-                # east
-                if cell.position[0] < width - 1:
-                    cell.path[0] = True
-            else:
-                # south
-                if cell.position[1] < height - 1:
-                    cell.path[1] = True
-    return cells
+        if (size % i == 0) and n is not None:
+            result.append((i, n))
+    return choice(result)
+
+def dist_to(a, b):
+    r = (abs(a[0] - b[0]), abs(a[1] - b[1]))
 
 
 class Level():

@@ -1,7 +1,7 @@
 import pygame as pg
 
 from math import pi, cos, sin
-from globals import PLAYER_TEAM, LEVEL_WIDTH, LEVEL_HEIGHT
+from globals import TEAM_PLAYER, TEAM_ENEMY, LEVEL_WIDTH, LEVEL_HEIGHT
 
 
 class Entity:
@@ -35,7 +35,7 @@ class Entity:
             self.dead = True
         self.move()
 
-    def do_damage(self, target, amount):
+    def do_damage(self, target, damagetype, amount):
         pass
 
     def take_damage(self, amount):
@@ -53,14 +53,41 @@ class Entity:
         pass
 
 
-class Player(Entity):
+class Enemy(Entity):
     def __init__(self, game):
-        super().__init__(pos=(3.0, 3.0), sprite=None, team=PLAYER_TEAM, game=game)
+        super().__init__(pos=(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
+        self.spottedplayer = False # ??? How are we going to handle attacking the player?
 
-    def do_damage(self, target, amount):
+    def update(self):
+        super().update()
+        self.move()
+
+    def do_damage(self, target, damagetype, amount):
+        super().do_damage(target, damagetype, amount)
         pass
 
-    def damage(self):
+    def take_damage(self, amount):
+        super().take_damage(amount)
+        pass
+
+    def move(self):
+        super().move()
+
+
+
+class Player(Entity):
+    def __init__(self, game):
+        super().__init__(pos=(3.0, 3.0), sprite=None, team=TEAM_PLAYER, game=game)
+
+    def update(self):
+        super().update()
+
+    def do_damage(self, target, damagetype, amount):
+        super().do_damage(target, damagetype, amount)
+        pass
+
+    def take_damage(self, amount):
+        super().take_damage(amount)
         pass
 
     def move(self):
