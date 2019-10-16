@@ -19,10 +19,11 @@ NORTH = 0
 SOUTH = 1
 EAST = 2
 WEST = 3
-LEVEL_WIDTH = 100
-LEVEL_HEIGHT = 100
+LEVEL_WIDTH = 15
+LEVEL_HEIGHT = 15
 LEVEL_SIZE = LEVEL_WIDTH * LEVEL_WIDTH
-LEVEL_PATH_LENGTH = 5 # Random number, may need some tuning
+LEVEL_PATH_LENGTH_MIN = 3 # Random number, may need some tuning
+LEVEL_PATH_LENGTH_MAX = 10 # Random number, may need some tuning
 LEVEL_PATH_CHANCE = 100
 LEVEL_PATH_DIRECTION_CHANCE = 50
 LEVEL_CELL_SPACING = 10
@@ -32,11 +33,11 @@ LEVEL_PATH_OFFSET = 10
 # Room size and shape logic consts
 #
 # The average size of rooms by way on number of cells in the room
-ROOM_SIZE = 25
+ROOM_SIZE = 60
 ROOM_CHANCE = 0.6
 
-ROOM_COUNT_MAX = int(LEVEL_SIZE / (ROOM_SIZE / 3) / ROOM_CHANCE) + 1
-ROOM_COUNT_MIN = int(ROOM_COUNT_MAX / 1.5)
+ROOM_COUNT_MAX = 10  # int(LEVEL_SIZE / (ROOM_SIZE / 3) / ROOM_CHANCE) + 1
+ROOM_COUNT_MIN = 5   # int(ROOM_COUNT_MAX / 1.5)
 
 
 
