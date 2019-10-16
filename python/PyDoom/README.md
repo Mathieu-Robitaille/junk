@@ -8,14 +8,15 @@ General game plan will reside here as well.
 
 
 # TODOs
-Parse string to build map
-Render said map and have walls drawn accordingly
-Use maze builder to generate map
-Build parser for generated map to level
-Build mini-map in top left corner for debugging
+Parse string to build map (Done?)
+Build edge detection for polygons to get finer resolution of distance to walls
+Render said map and have walls drawn accordingly (Rough)
+Build mini-map in top left corner for debugging (Done)
 Build a sprite loader
 
 
 
-Future TODOs
+BONUS FEATURES:
+Use maze builder to generate map
+Build parser for generated map to level
 Allow character to break walls? expanding map further?

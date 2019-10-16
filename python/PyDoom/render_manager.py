@@ -92,19 +92,15 @@ def draw_level(game, surface):
             if cast_list[i][0] is 0 and cast_list[i][1] is 0:
                 continue  # I'm super good at coding
             # This is very ugly and I'm ashamed of it, BUT it's very readable so there's that...
-            ceiling1 = cast_list[i][0]
-            floor1 = cast_list[i][1]
-            ceiling2 = cast_list[i+1][0]
-            floor2 = cast_list[i+1][1]
             x1 = cast_list[i][2]
             x2 = cast_list[i][2]
             val = cast_list[i][3]
             color = (val, val, val)
             
-            coordinates = [(x1, ceiling1),
-                           (x1, ceiling2),
-                           (x2, floor1),
-                           (x2, floor2)]
+            coordinates = [(x1, cast_list[i][0]),  # Ceiling of current cell
+                           (x1, cast_list[i+1][0]),  # Ceiling of next cell
+                           (x2, cast_list[i][1]),  # Floor of current cell
+                           (x2, cast_list[i+1][1])]  # Floor of next cell
             pg.draw.polygon(surface, color, coordinates, 0)
         except IndexError as e:
             print("you done it now boy")
