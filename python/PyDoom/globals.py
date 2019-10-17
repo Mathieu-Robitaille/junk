@@ -22,8 +22,8 @@ WEST = 3
 LEVEL_WIDTH = 15
 LEVEL_HEIGHT = 15
 LEVEL_SIZE = LEVEL_WIDTH * LEVEL_WIDTH
-LEVEL_PATH_LENGTH_MIN = 3 # Random number, may need some tuning
-LEVEL_PATH_LENGTH_MAX = 10 # Random number, may need some tuning
+LEVEL_PATH_LENGTH_MIN = 3   # Random number, may need some tuning
+LEVEL_PATH_LENGTH_MAX = 10  # Random number, may need some tuning
 LEVEL_PATH_CHANCE = 100
 LEVEL_PATH_DIRECTION_CHANCE = 50
 LEVEL_CELL_SPACING = 10
@@ -47,7 +47,6 @@ ROOM_COUNT_MIN = 5   # int(ROOM_COUNT_MAX / 1.5)
 #
 RENDER_RAYCASTING_DEPTH = 30
 # This is the divisor for ray casting, a larger number means more deg between rays
-RENDER_SCREEN_RAYSPLIT = 1
 RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET) - 30
 
 #
