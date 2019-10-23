@@ -74,6 +74,9 @@ IU_ASSET_DIR = "assets"
 LOGGING_DIR = "logs"
 
 
+def two_d_to_one_d(xy, w):
+    return int(xy[1]) * w + int(xy[0])
+
 #
 #
 #

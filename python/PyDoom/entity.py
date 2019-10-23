@@ -1,7 +1,7 @@
 import pygame as pg
 
 from math import pi, cos, sin
-from globals import TEAM_PLAYER, TEAM_ENEMY, LEVEL_WIDTH, LEVEL_HEIGHT
+from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d
 
 
 class Entity:
@@ -48,10 +48,7 @@ class Entity:
         self.tick = timer
 
     def move_check(self, pos):
-        # Needs a rewrite since we're doing cell based mapping now
-        # return False if self.game.level.map[int(pos[1] * LEVEL_SIZE + pos[0])] == "#" else True
-        pass
-
+        return False if self.game.level.map[two_d_to_one_d(pos, self.game.level.width)].is_wall else True
 
 class Enemy(Entity):
     def __init__(self, game):
@@ -62,8 +59,8 @@ class Enemy(Entity):
         super().update()
         self.move()
 
-    def do_damage(self, target, damagetype, amount):
-        super().do_damage(target, damagetype, amount)
+    def do_damage(self, target, damage_type, amount):
+        super().do_damage(target, damage_type, amount)
         pass
 
     def take_damage(self, amount):
@@ -92,16 +89,16 @@ class Player(Entity):
 
     def move(self):
         if self.wasd_held[0]:
-            self.pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
-                        self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
-            # self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
+            tmp_pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
+                       self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
+            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
             # print(self.pos, " -> ", tmp_pos)
         if self.wasd_held[1]:
             self.angle -= 1.0 * self.tick
         if self.wasd_held[2]:
-            self.pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
-                        self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
-            # self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
+            tmp_pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
+                       self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
+            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
             # print(self.pos, " -> ", tmp_pos)
         if self.wasd_held[3]:
             self.angle += 1.0 * self.tick
