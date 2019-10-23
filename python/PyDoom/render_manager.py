@@ -169,6 +169,9 @@ I now have a way to calculate the exact distance between two points and where tw
 Now what i need to work on is creating the lines representing the walls, then use linear to figure out which
 walls i can see, THEN calculate the exact distance to those walls.
 All of this to make the walls less jagged...
+
+Quick thought, measure all walls then the one with the smallest intersection distance is obviously
+the one we're looking at duh
 """
 
 
