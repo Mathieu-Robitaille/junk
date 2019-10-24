@@ -42,7 +42,12 @@ def get_north(c, l):
 
 
 def get_south(c, l):
-    return l.map[c.id + l.width] if c.id + l.width <= len(l.map) else None
+    result = None
+    try:
+        result = l.map[c.id + l.width] if c.id + l.width <= len(l.map) - 1 else None
+    except Exception as e:
+        print("oh no")
+    return result
 
 
 def get_east(c, l):
@@ -55,6 +60,7 @@ def get_west(c, l):
 
 def create_wall(c, l, d):
     """
+    This creates a wall respective of the face of the cell it is on
     :param c: cell
     :param l: level obj
     :param d: direction "N, S, E, W"
@@ -63,9 +69,15 @@ def create_wall(c, l, d):
     wall_id = len(l.walls)
     starting = one_d_to_two_d(c.id, l.width)
     ending = (0, 0)
-    if d in ("N", "S"):
+    if d == "N":
         ending = starting[0] + 1, starting[1]
-    elif d in ("E", "W"):
+    elif d == "S":
+        starting = starting[0], starting[1] + 1
+        ending = starting[0] + 1, starting[1]
+    elif d == "E":
+        starting = starting[0] + 1, starting[1]
+        ending = starting[0], starting[1] + 1
+    elif d == "W":
         ending = starting[0], starting[1] + 1
     l.walls.append((starting, ending))
     return wall_id
@@ -79,9 +91,9 @@ def extend_wall(i, l, d):
     :return:
     """
     if d in ("N", "S"):
-        l.walls[i] = l.walls[i][1][0] + 1, l.walls[i][1][1]
+        l.walls[i] = (l.walls[i][0], (l.walls[i][1][0] + 1, l.walls[i][1][1]))
     elif d in ("E", "W"):
-        l.walls[i] = l.walls[i][1][0], l.walls[i][1][1] + 1
+        l.walls[i] = (l.walls[i][0], (l.walls[i][1][0], l.walls[i][1][1] + 1))
 
 
 def carry_or_create_wall(c, l):
@@ -89,32 +101,55 @@ def carry_or_create_wall(c, l):
         return
 
     # Order is N, S, E, W
-    neighbors = [get_north(c, l), get_south(c, l),
-                 get_east(c, l), get_west(c, l)]
+    north = get_north(c, l)
+    south = get_south(c, l)
+    east = get_east(c, l)
+    west = get_west(c, l)
 
     """
     These are the questions that need to be answered to decide if we create a wall or extend a wall
     We will use a northern wall as an example, this would be a wall segment on the northern face of a cell
     
     Is there a cell to the north that is a wall or None?
-    Is there a cell to the east and is it a wall?
+    Is there a cell to the west and is it a wall?
     A northern cell would obstruct all visibility of the wall we're evaluating so skip if there is a cell.
-    Creating or extending a wall depends on the presence of a cell to the east.
-    If there is a cell to the east and that cell has a wall to the north, just take that cell's north wall ID
+    Creating or extending a wall depends on the presence of a cell to the west.
+    If there is a cell to the west and that cell has a wall to the north, just take that cell's north wall ID
     Otherwise create a wall ot the north.
     
     """
 
     # Evaluate the situation for the Northern wall
-    if (neighbors[0] is not None and not neighbors[0].is_wall) and neighbors[2] is not None:
-        if neighbors[2].is_wall and neighbors[2].walls[0] is not 0:
-            extend_wall(neighbors[2].walls[0], l, "N")
-            c.walls[0] = neighbors[2].walls[0]
+    if (north is not None and not north.is_wall) and west is not None:
+        if west.walls[0] is not 0:
+            extend_wall(west.walls[0], l, "N")
+            c.walls[0] = west.walls[0]
         else:
             c.walls[0] = create_wall(c, l, "N")
 
+    # Evaluate the Southern wall
+    if (south is not None and not south.is_wall) and west is not None:
+        if west.walls[1] is not 0:
+            extend_wall(west.walls[1], l, "S")
+            c.walls[1] = west.walls[1]
+        else:
+            c.walls[1] = create_wall(c, l, "S")
 
+    # Evaluate the east wall
+    if (east is not None and not east.is_wall) and north is not None:
+        if north.walls[2] is not 0:
+            extend_wall(north.walls[2], l, "E")
+            c.walls[2] = north.walls[2]
+        else:
+            c.walls[2] = create_wall(c, l, "E")
 
+    # Evaluate the west wall
+    if (west is not None and not west.is_wall) and north is not None:
+        if north.walls[3] is not 0:
+            extend_wall(north.walls[3], l, "W")
+            c.walls[3] = north.walls[3]
+        else:
+            c.walls[3] = create_wall(c, l, "W")
 
 
 class Cell:
@@ -135,6 +170,8 @@ class Level:
         # Walls are stored as ((startx, starty), (endx, endy)) with the index being the id of the wall
         self.walls = [((0, 0), (0, 0))]
         self.map = create_cells(get_map(self.width, self.height))
+        for cell in self.map:
+            carry_or_create_wall(cell, self)
 
     def update(self):
         pass

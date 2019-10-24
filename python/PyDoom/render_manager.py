@@ -138,12 +138,12 @@ def draw_minimap(s, g):
     for h in range(0, LEVEL_HEIGHT):
         for w in range(0, LEVEL_WIDTH):
             if g.level.map[two_d_to_one_d((w, h), g.level.width)].is_wall:
-                pg.draw.rect(s, pg.Color("white"),
-                             (SCREEN_WIDTH - LEVEL_CELL_SPACING - (w * LEVEL_CELL_SPACING),
-                              h * LEVEL_CELL_SPACING,
-                              LEVEL_CELL_SPACING,
-                              LEVEL_CELL_SPACING))
-            else:
+            #     pg.draw.rect(s, pg.Color("white"),
+            #                  (SCREEN_WIDTH - LEVEL_CELL_SPACING - (w * LEVEL_CELL_SPACING),
+            #                   h * LEVEL_CELL_SPACING,
+            #                   LEVEL_CELL_SPACING,
+            #                   LEVEL_CELL_SPACING))
+            # else:
                 pg.draw.rect(s, pg.Color("black"),
                              (SCREEN_WIDTH - LEVEL_CELL_SPACING - (w * LEVEL_CELL_SPACING),
                               h * LEVEL_CELL_SPACING,
@@ -162,6 +162,12 @@ def draw_minimap(s, g):
 
     # Player
     pg.draw.circle(s, pg.Color("red"), player_pos, 1)
+    for wall in g.level.walls:
+        start = (int(SCREEN_WIDTH - (wall[0][0] * LEVEL_CELL_SPACING)),
+                 int(wall[0][1] * LEVEL_CELL_SPACING))
+        end = (int(SCREEN_WIDTH - (wall[1][0] * LEVEL_CELL_SPACING)),
+               int(wall[1][1] * LEVEL_CELL_SPACING))
+        pg.draw.line(s, pg.Color("Green"), start, end)
 
 
 """
