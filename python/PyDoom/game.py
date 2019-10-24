@@ -14,10 +14,7 @@ class Game(PyDoom):
 
     def draw(self, surface):
         # Hand off the render responsibilities to the render manager
-        start = timer()
         draw_level(self, surface)
-        end = timer()
-        # print(end - start)
 
     def update(self):
         super().update()

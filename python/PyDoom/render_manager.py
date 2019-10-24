@@ -35,6 +35,14 @@ def draw_level(g, s):
     cast_list = []
 
     draw_time = 0
+
+    """
+    NEW PLAN!
+    Instead of needlessly iterating over each pixel and messing with calculating each pixel's distance
+    Why not just get the distance to each wall, then draw gradients between those wall points????
+    
+    """
+
     for i in range(int(SCREEN_WIDTH)):
         # Get the angle we want to cast to
         ray_angle = (player_angle - player_fov / 2.0) + float(i) / float(SCREEN_WIDTH) * player_fov
