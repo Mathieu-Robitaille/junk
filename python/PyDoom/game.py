@@ -1,5 +1,5 @@
 import pygame as pg
-
+from timeit import default_timer as timer
 from entity import Player
 from level import Level
 from pydoom import PyDoom
@@ -14,7 +14,10 @@ class Game(PyDoom):
 
     def draw(self, surface):
         # Hand off the render responsibilities to the render manager
+        start = timer()
         draw_level(self, surface)
+        end = timer()
+        # print(end - start)
 
     def update(self):
         super().update()
