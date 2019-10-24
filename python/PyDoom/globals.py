@@ -77,6 +77,11 @@ LOGGING_DIR = "logs"
 def two_d_to_one_d(xy, w):
     return int(xy[1]) * w + int(xy[0])
 
+
+def one_d_to_two_d(id, w):
+    return id % w, int(id / w)
+
+
 #
 #
 #
