@@ -2,7 +2,7 @@ class PyDoom:
     def __init__(self):
         pass
 
-    def draw(self, surface):
+    def draw(self, surface, clock=None):
         pass
 
     def run(self):
@@ -11,5 +11,5 @@ class PyDoom:
     def update(self):
         pass
 
-    def event(self, event, timer):
+    def event(self, event, event_timer):
         pass

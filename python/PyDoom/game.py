@@ -7,19 +7,18 @@ from pydoom import PyDoom
 from render_manager import draw_level
 
 
-
 class Game(PyDoom):
     def __init__(self):
         super().__init__()
         self.level = Level()
         self.player = Player(self)
 
-    def draw(self, surface):
+    def draw(self, surface, clock=None):
         # Hand off the render responsibilities to the render manager
         # start = timer()
         draw_level(self, surface)
-        # end = timer()
-        # logger.log("Render time :", end - start)
+        fps = "{:.3f}".format(clock.get_fps())
+        logger.on_screen_log(fps, surface)
 
     def update(self):
         super().update()
@@ -28,6 +27,6 @@ class Game(PyDoom):
         self.level.update()
         self.player.update()
 
-    def event(self, e, t):
-        super().event(e, t)
-        self.player.event(e, t)
+    def event(self, event, event_timer):
+        super().event(event, event_timer)
+        self.player.event(event, event_timer)

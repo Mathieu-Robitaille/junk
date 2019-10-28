@@ -15,7 +15,7 @@ class Entity:
         self.fov = pi / 3
 
         # This entity's sprite (Image Utilities are not implemented yet)
-        #self.sprite = iu.images[sprite]
+        # self.sprite = iu.images[sprite]
         self.team = team
 
         # local variable for time between things

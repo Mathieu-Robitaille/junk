@@ -43,9 +43,7 @@ class Doom(PyDoom):
         super().draw(surface)
         self.surface.fill(pg.Color("black"))
         # Draw the active screen
-        self.screens[self.active].draw(surface)
-        fps = "{:.3f}".format(self.clock.get_fps())
-        logger.on_screen_log(fps, self.surface)
+        self.screens[self.active].draw(surface, self.clock)
         pg.display.update()
 
     def run(self):
