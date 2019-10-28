@@ -1,6 +1,5 @@
 from math import cos, sin, pi, fabs, sqrt
 from timeit import default_timer as timer
-from shapely.geometry import LineString
 
 import pygame as pg
 import logger
@@ -31,10 +30,8 @@ def draw_level(g, s):
     player_pos_y = g.player.pos[1]
     player_angle = g.player.angle
     player_fov = g.player.fov
-    logger.log("drawing level")
     cast_list = []
 
-    draw_time = 0
 
     """
     NEW PLAN!
@@ -55,11 +52,7 @@ def draw_level(g, s):
         walls = [0]
 
         for wall in g.level.walls[1:]:
-            start = timer()
-            test = line_intersection(player_line, wall)
-            end = timer()
-            draw_time += end - start
-            # logger.log(end - start)
+            test = line_intersection(Line(*player_line), Line(*wall))
             if not test:
                 continue
             distance = distance_to_point((player_pos_x, player_pos_y), test)
@@ -85,7 +78,6 @@ def draw_level(g, s):
     draw_screen(s, cast_list)
     draw_sprites(s, cast_list)
     draw_minimap(s, g, cast_list)
-    logger.log(draw_time)
 
 
 def draw_screen(s, c):
@@ -138,13 +130,6 @@ def draw_minimap(s, g, c):
     player_pos = (int(SCREEN_WIDTH - (g.player.pos[0] * LEVEL_CELL_SPACING)),
                   int(g.player.pos[1] * LEVEL_CELL_SPACING))
 
-    # Change variable name, very bad
-    # player_aim_line_end = (player_pos[0] - 7 * sin(g.player.angle),
-    #                        player_pos[1] + 7 * cos(g.player.angle))
-
-    # Player aim line
-    # pg.draw.line(s, pg.Color("white"), player_pos, player_aim_line_end)
-
     # Draw the player fov
     player_left_aim = (player_pos[0] - 20 * sin(g.player.angle - g.player.fov / 2),
                        player_pos[1] + 20 * cos(g.player.angle - g.player.fov / 2))
@@ -176,47 +161,45 @@ def draw_minimap(s, g, c):
             logger.log("Type error")
 
 
-def line_intersection(line1, line2):
-    line1 = LineString(line1)
-    line2 = LineString(line2)
-    r = line1.intersection(line2)
-    return (r.x, r.y) if r else False
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return "x: {0}, y: {1}".format(self.x, self.y)
 
 
-# def line_intersection(line1, line2):
-#     xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
-#     ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
-# 
-#     def det(a, b):
-#         return a[0] * b[1] - a[1] * b[0]
-# 
-#     div = det(xdiff, ydiff)
-#     if div == 0:
-#        return False
-# 
-#     d = (det(*line1), det(*line2))
-#     x = det(d, xdiff) / div
-#     y = det(d, ydiff) / div
-#     return x, y
+class Line:
+    def __init__(self, p1, p2):
+        self.p1 = Point(*p1)
+        self.p2 = Point(*p2)
 
-# def line(p1, p2):
-#     a = (p1[1] - p2[1])
-#     b = (p2[0] - p1[0])
-#     c = (p1[0]*p2[1] - p2[0]*p1[1])
-#     return a, b, -c
-#
-# def line_intersection(l1, l2):
-#     line1 = line(*l1)
-#     line2 = line(*l2)
-#     d  = line1[0] * line2[1] - line1[1] * line2[0]
-#     dx = line1[2] * line2[1] - line1[1] * line2[2]
-#     dy = line1[0] * line2[2] - line1[2] * line2[0]
-#     if d != 0:
-#         x = dx / d
-#         y = dy / d
-#         return x, y
-#     else:
-#         return False
+
+def line_intersection(l1, l2):
+    d = (l2.p2.y - l2.p1.y) * (l1.p2.x - l1.p1.x)\
+        - \
+            (l2.p2.x - l2.p1.x) * (l1.p2.y - l1.p1.y)
+    if d == 0:
+        return False
+
+    n_a = (l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y)\
+        - \
+          (l2.p2.y - l2.p1.y) * (l1.p1.x - l2.p1.x)
+    n_b = (l1.p2.x - l1.p1.x) * (l1.p1.y - l2.p1.y)\
+        - \
+          (l1.p2.y - l1.p1.y) * (l1.p1.x - l2.p1.x)
+
+    ua = n_a / d
+    ub = n_b / d
+
+    if 0 <= ua <= 1 and 0 <= ub <= 1:
+        x = l1.p1.x + (ua * (l1.p2.x - l1.p1.x))
+        y = l1.p1.x + (ua * (l1.p2.y - l1.p1.y))
+        return x, y
+    else:
+        return False
+
 
 def distance_to_point(a, b):
     """

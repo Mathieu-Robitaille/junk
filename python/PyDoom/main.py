@@ -1,6 +1,7 @@
 import sys
 
 import pygame as pg
+import logger
 
 from game import Game
 from globals import *
@@ -43,6 +44,8 @@ class Doom(PyDoom):
         self.surface.fill(pg.Color("black"))
         # Draw the active screen
         self.screens[self.active].draw(surface)
+        fps = "{:.3f}".format(self.clock.get_fps())
+        logger.on_screen_log(fps, self.surface)
         pg.display.update()
 
     def run(self):

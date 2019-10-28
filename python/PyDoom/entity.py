@@ -12,7 +12,7 @@ class Entity:
         self.angle = pi / 2
 
         # The players FOV
-        self.fov = pi / 5
+        self.fov = pi / 3
 
         # This entity's sprite (Image Utilities are not implemented yet)
         #self.sprite = iu.images[sprite]
@@ -69,7 +69,6 @@ class Enemy(Entity):
 
     def move(self):
         super().move()
-
 
 
 class Player(Entity):
