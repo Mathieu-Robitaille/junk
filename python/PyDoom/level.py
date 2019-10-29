@@ -2,6 +2,8 @@ from math import floor
 from random import randint, choice
 import logger
 from globals import *
+from timeit import default_timer as timer
+
 
 
 def get_map(width, height):
@@ -11,9 +13,9 @@ def get_map(width, height):
            "#             #" \
            "#             #" \
            "#             #" \
-           "#   #     #   #" \
-           "#   #     #   #" \
-           "#   #     #   #" \
+           "#   #   ###   #" \
+           "#   #   ###   #" \
+           "#   #   ###   #" \
            "#   #     #   #" \
            "#   #  ## #   #" \
            "#             #" \
@@ -25,15 +27,15 @@ def get_map(width, height):
 
 def create_cells(level_map):
     # WHO NEEDS READABILITY
-    # result = []
-    # for i in level_map:
+    # also the single line solution is 0.0002 seconds slower so....
+    # r = []
+    # for i in range(len(level_map) - 1):
     #     if level_map[i] is '#':
     #         # It's a wall
-    #         result.append(Cell(i, is_wall=True))
+    #         r.append(Cell(i, is_wall=True))
     #     else:
     #         # Not a wall
-    #         result.append(Cell(i, is_wall=False))
-    # return result
+    #         r.append(Cell(i, is_wall=False))
     return [Cell(x, True if level_map[x] is '#' else False) for x in range(len(level_map))]
 
 
@@ -97,6 +99,16 @@ def extend_wall(i, l, d):
 
 
 def carry_or_create_wall(c, l):
+    """
+    This function builds a list of line segments we treat as obsticals for player vision and movement
+    or "walls" as normal people call them
+
+
+    :param c:
+    :param l:
+    :return:
+    """
+
     if c.is_wall is False:
         return
 
@@ -106,18 +118,6 @@ def carry_or_create_wall(c, l):
     east = get_east(c, l)
     west = get_west(c, l)
 
-    """
-    These are the questions that need to be answered to decide if we create a wall or extend a wall
-    We will use a northern wall as an example, this would be a wall segment on the northern face of a cell
-    
-    Is there a cell to the north that is a wall or None?
-    Is there a cell to the west and is it a wall?
-    A northern cell would obstruct all visibility of the wall we're evaluating so skip if there is a cell.
-    Creating or extending a wall depends on the presence of a cell to the west.
-    If there is a cell to the west and that cell has a wall to the north, just take that cell's north wall ID
-    Otherwise create a wall ot the north.
-    
-    """
 
     # Evaluate the situation for the Northern wall
     if (north is not None and not north.is_wall) and west is not None:

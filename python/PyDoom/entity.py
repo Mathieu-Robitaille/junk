@@ -25,6 +25,9 @@ class Entity:
 
         self.game = game
 
+        # Used in move check by adding a bit and ensuring that value does not intersect with a wall
+        self.move_speed = 5
+
         # List for W, A, S, D
         self.wasd_held = [False, False, False, False]
         #
@@ -47,13 +50,23 @@ class Entity:
     def event(self, event, timer):
         self.tick = timer
 
-    def move_check(self, pos):
-        return False if self.game.level.map[two_d_to_one_d(pos, self.game.level.width)].is_wall else True
+    def move_check(self, direction):
+        "forwards or backwards (True or False)"
+        if direction:  # backwards
+            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
+                       self.pos[1] + (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
+        else:  # forwards
+            tmp_pos = (self.pos[0] - (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
+                       self.pos[1] - (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
+        if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+            self.pos = tmp_pos
+
+
 
 class Enemy(Entity):
     def __init__(self, game):
         super().__init__(pos=(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
-        self.spottedplayer = False # ??? How are we going to handle attacking the player?
+        self.spotted_player = False  # ??? How are we going to handle attacking the player?
 
     def update(self):
         super().update()
@@ -88,17 +101,11 @@ class Player(Entity):
 
     def move(self):
         if self.wasd_held[0]:
-            tmp_pos = (self.pos[0] + (sin(self.angle) * 1.0 * self.tick),
-                       self.pos[1] + (cos(self.angle) * 1.0 * self.tick))
-            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
-            # print(self.pos, " -> ", tmp_pos)
+            self.move_check(True)
         if self.wasd_held[1]:
             self.angle -= 1.0 * self.tick
         if self.wasd_held[2]:
-            tmp_pos = (self.pos[0] - (sin(self.angle) * 1.0 * self.tick),
-                       self.pos[1] - (cos(self.angle) * 1.0 * self.tick))
-            self.pos = tmp_pos if self.move_check(tmp_pos) else self.pos
-            # print(self.pos, " -> ", tmp_pos)
+            self.move_check(False)
         if self.wasd_held[3]:
             self.angle += 1.0 * self.tick
 

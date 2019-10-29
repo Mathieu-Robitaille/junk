@@ -52,6 +52,12 @@ def draw_level(g, s):
         walls = [0]
 
         for wall in g.level.walls[1:]:
+            #
+            # This is very slow to collect all the data we need to draw a frame.
+            # Perhaps I can use C++ to build the data i need then unpack it in python is some way?
+            # Looks like it's possible
+            # https://docs.python.org/3/extending/extending.html
+            #
             test = line_intersection(Line(*player_line), Line(*wall))
             if not test:
                 continue
@@ -116,10 +122,25 @@ def draw_screen(s, c):
 
 
 def draw_sprites(s, c):
+    """
+    For sprite drawing we'll need to build a z buffer ordered by distance to the player, drawing each item in the list
+    in reverse order (farthest thing first, closest thing last)
+    :param s: surface to draw things to
+    :param c: cast list, do I really need this????
+    :return: nothing
+    """
     pass
 
 
 def draw_minimap(s, g, c):
+    """
+    DEBUG TOOL
+    :param s:
+    :param g:
+    :param c:
+    :return:
+    """
+
     pg.draw.rect(s, pg.Color("Black"),
                  (SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_CELL_SPACING),
                   0,
@@ -161,6 +182,12 @@ def draw_minimap(s, g, c):
             logger.log("Type error")
 
 
+
+"""
+The following Line and Point classes are tools I used to help make figure out this code easier, does it need to be here?
+It probably overly complicates things but it also makes it easier to work with in my noggin
+"""
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -177,25 +204,36 @@ class Line:
 
 
 def line_intersection(l1, l2):
+    """
+    Takes two line objects and checks if they intersect, if they do return the x, y coordinate of the intersection
+    else return False
+
+    Using the following resource I was able to build a faster implementation of this than using the
+    shapely library which was far too slow for these purposes (This is better but possibly not the final solution)
+    http://paulbourke.net/geometry/pointlineplane/
+    :param l1: A Line object
+    :param l2: A line object
+    :return: x, y or False
+    """
     d = (l2.p2.y - l2.p1.y) * (l1.p2.x - l1.p1.x)\
         - \
-            (l2.p2.x - l2.p1.x) * (l1.p2.y - l1.p1.y)
+        (l2.p2.x - l2.p1.x) * (l1.p2.y - l1.p1.y)
     if d == 0:
         return False
 
-    n_a = (l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y)\
+    a = (l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y)\
         - \
-          (l2.p2.y - l2.p1.y) * (l1.p1.x - l2.p1.x)
-    n_b = (l1.p2.x - l1.p1.x) * (l1.p1.y - l2.p1.y)\
+        (l2.p2.y - l2.p1.y) * (l1.p1.x - l2.p1.x)
+    b = (l1.p2.x - l1.p1.x) * (l1.p1.y - l2.p1.y)\
         - \
-          (l1.p2.y - l1.p1.y) * (l1.p1.x - l2.p1.x)
+        (l1.p2.y - l1.p1.y) * (l1.p1.x - l2.p1.x)
 
-    ua = n_a / d
-    ub = n_b / d
+    ra = a / d
+    rb = b / d
 
-    if 0 <= ua <= 1 and 0 <= ub <= 1:
-        x = l1.p1.x + (ua * (l1.p2.x - l1.p1.x))
-        y = l1.p1.x + (ua * (l1.p2.y - l1.p1.y))
+    if 0 <= ra <= 1 and 0 <= rb <= 1:
+        x = l1.p1.x + (ra * (l1.p2.x - l1.p1.x))
+        y = l1.p1.y + (ra * (l1.p2.y - l1.p1.y))
         return x, y
     else:
         return False
