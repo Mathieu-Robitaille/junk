@@ -32,7 +32,6 @@ def draw_level(g, s):
     player_fov = g.player.fov
     cast_list = []
 
-
     """
     NEW PLAN!
     Instead of needlessly iterating over each pixel and messing with calculating each pixel's distance
@@ -65,7 +64,6 @@ def draw_level(g, s):
             distances.append(distance)
             walls.append(wall)
 
-
         # The distance we've found to the wall we're looking at
         distance_to_wall = min(distances)
         target_wall = walls[distances.index(distance_to_wall)]
@@ -78,8 +76,9 @@ def draw_level(g, s):
 
         max_size = sqrt(LEVEL_WIDTH * LEVEL_WIDTH + LEVEL_HEIGHT * LEVEL_HEIGHT)
 
-        # Force the color value in between 0-255
-        val = normalize(distance_to_wall, 0, max_size, 0, 255)
+        # Normalize the color value in between 0-255
+        # This then needs to be "flipped" ex 240 would be 15
+        val = 255 - normalize(distance_to_wall, 0, max_size, 0, 255)
 
         cast_list.append([ceiling, floor, i, val, target_wall])
 
@@ -106,7 +105,7 @@ def draw_screen(s, c):
                 continue  # finish the wall
 
             if c[i][0] is 0 and c[i][1] is 0:
-                continue  # I'm super good at coding
+                continue  # I'm super good at coding and this leaves the problem of not drawing the last line
 
             # The X offsets of the current vertical line and the subsequent line
             x1 = c[i][2]
@@ -184,7 +183,6 @@ def draw_minimap(s, g, c):
             logger.log("Type error")
 
 
-
 """
 The following Line and Point classes are tools I used to help make figure out this code easier, does it need to be here?
 It probably overly complicates things but it also makes it easier to work with in my noggin
@@ -251,8 +249,8 @@ def distance_to_point(a, b):
     return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
-def normalize(val, oldmin, oldmax, newmin, newmax):
-    oldrange = oldmax - oldmin
-    newrange = newmax - newmin
-    return ((val - oldmin) * newrange) / oldrange + newmin
+def normalize(val, old_min, old_max, new_min, new_max):
+    old_range = old_max - old_min
+    new_range = new_max - new_min
+    return ((val - old_min) * new_range) / old_range + new_min
 

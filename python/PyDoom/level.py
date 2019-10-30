@@ -13,11 +13,11 @@ def get_map(width, height):
            "#             #" \
            "#             #" \
            "#             #" \
-           "#   #   ###   #" \
-           "#   #   ###   #" \
-           "#   #   ###   #" \
+           "#         #   #" \
            "#   #     #   #" \
-           "#   #  ## #   #" \
+           "#   #     #   #" \
+           "#   #     #   #" \
+           "#   #  #      #" \
            "#             #" \
            "#             #" \
            "#             #" \
@@ -153,8 +153,8 @@ def carry_or_create_wall(c, l):
 
 
 class Cell:
-    def __init__(self, id, is_wall):
-        self.id = id
+    def __init__(self, cell_id, is_wall):
+        self.id = cell_id
         self.is_wall = is_wall
         # Order is North, South, East, West
         self.walls = [0, 0, 0, 0]

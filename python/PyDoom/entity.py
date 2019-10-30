@@ -27,7 +27,9 @@ class Entity:
 
         # Used in move check by adding a bit and ensuring that value does not intersect with a wall
         self.move_speed = 1.75
-        
+
+        self.move_buffer = 1.5
+
         #
         self.health = 100
 
@@ -52,26 +54,26 @@ class Entity:
         "forwards, backwards, strafe left, strafe right"
         # This is really messy... How could I simplify this?
         if direction is 1:  # backwards
-            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
-                       self.pos[1] + (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
+            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos[1] + (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos = (self.pos[0] + (sin(self.angle) * self.move_speed * self.tick),
                             self.pos[1] + (cos(self.angle) * self.move_speed * self.tick))
         elif direction is 2:  # forwards
-            tmp_pos = (self.pos[0] - (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
-                       self.pos[1] - (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
+            tmp_pos = (self.pos[0] - (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos[1] - (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos = (self.pos[0] - (sin(self.angle) * self.move_speed * self.tick),
                             self.pos[1] - (cos(self.angle) * self.move_speed * self.tick))
         elif direction is 3:  # Strafe left
-            tmp_pos = (self.pos[0] + (sin(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick),
-                       self.pos[1] + (cos(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick))
+            tmp_pos = (self.pos[0] + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos[1] + (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos = (self.pos[0] + (sin(self.angle - pi / 2) * self.move_speed * self.tick),
                             self.pos[1] + (cos(self.angle - pi / 2) * self.move_speed * self.tick))
         elif direction is 4:  # Strafe right
-            tmp_pos = (self.pos[0] - (sin(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick),
-                       self.pos[1] - (cos(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick))
+            tmp_pos = (self.pos[0] - (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos[1] - (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos = (self.pos[0] - (sin(self.angle - pi / 2) * self.move_speed * self.tick),
                             self.pos[1] - (cos(self.angle - pi / 2) * self.move_speed * self.tick))

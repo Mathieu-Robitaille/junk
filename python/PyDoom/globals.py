@@ -40,6 +40,11 @@ ROOM_COUNT_MAX = 10  # int(LEVEL_SIZE / (ROOM_SIZE / 3) / ROOM_CHANCE) + 1
 ROOM_COUNT_MIN = 5   # int(ROOM_COUNT_MAX / 1.5)
 
 
+#
+# Menu globals
+#
+MENU_SPACING = 40
+
 
 
 #
@@ -67,6 +72,11 @@ TEAM_ENEMY = 2
 #
 IU_ASSET_DIR = "assets"
 
+
+#
+# Text options
+#
+FONT = "freesansbold.ttf"
 
 #
 # Logging constants
