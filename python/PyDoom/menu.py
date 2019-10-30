@@ -2,6 +2,7 @@ import pygame as pg
 from pydoom import PyDoom
 from render_manager import *
 from globals import FONT, SCREEN_WIDTH, SCREEN_HEIGHT, MENU_SPACING
+from image_utilities import get_image
 
 
 class Menu(PyDoom):
@@ -10,8 +11,10 @@ class Menu(PyDoom):
         self.active = 0
         self.options = ["New Game", "Options", "Exit"]
         self.font = pg.font.Font(FONT, 30)
+        self.main_image = get_image("MainLogo.png")
 
     def draw(self, surface, clock=None):
+        surface.blit(self.main_image, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
         for o in self.options:
             color = pg.Color("Dark grey")
             if self.options.index(o) == self.active:

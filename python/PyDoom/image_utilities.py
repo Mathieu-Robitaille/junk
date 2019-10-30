@@ -26,11 +26,11 @@ def load_images():
             logger.log("!!! EXCEPTION !!!\nimage utilities\n\t{}".format(e))
 
 
-def get_image(imagename):
-    image = IMAGE_LIBRARY[imagename]
-    if image is None:
+def get_image(image_name):
+    if image_name not in IMAGE_LIBRARY.keys():
         try:
-            IMAGE_LIBRARY[imagename] = pg.image.load(join(IU_ASSET_DIR, imagename))
+            IMAGE_LIBRARY[image_name] = pg.image.load(join(IU_ASSET_DIR, image_name))
         except Exception as e:
             logger.log("!!! EXCEPTION !!!\nimage utilities\n\t{}".format(e))
-    return image
+    return IMAGE_LIBRARY[image_name]
+
