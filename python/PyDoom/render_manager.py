@@ -76,8 +76,10 @@ def draw_level(g, s):
         # Calc the floor
         floor = SCREEN_HEIGHT - ceiling
 
+        max_size = sqrt(LEVEL_WIDTH * LEVEL_WIDTH + LEVEL_HEIGHT * LEVEL_HEIGHT)
+
         # Force the color value in between 0-255
-        val = (255 / distance_to_wall if 255 / distance_to_wall > 0 else 0) % 255
+        val = normalize(distance_to_wall, 0, max_size, 0, 255)
 
         cast_list.append([ceiling, floor, i, val, target_wall])
 
@@ -249,4 +251,8 @@ def distance_to_point(a, b):
     return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
+def normalize(val, oldmin, oldmax, newmin, newmax):
+    oldrange = oldmax - oldmin
+    newrange = newmax - newmin
+    return ((val - oldmin) * newrange) / oldrange + newmin
 

@@ -26,10 +26,8 @@ class Entity:
         self.game = game
 
         # Used in move check by adding a bit and ensuring that value does not intersect with a wall
-        self.move_speed = 5
-
-        # List for W, A, S, D
-        self.wasd_held = [False, False, False, False]
+        self.move_speed = 1.75
+        
         #
         self.health = 100
 
@@ -51,15 +49,32 @@ class Entity:
         self.tick = timer
 
     def move_check(self, direction):
-        "forwards or backwards (True or False)"
-        if direction:  # backwards
+        "forwards, backwards, strafe left, strafe right"
+        # This is really messy... How could I simplify this?
+        if direction is 1:  # backwards
             tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
                        self.pos[1] + (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
-        else:  # forwards
+            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+                self.pos = (self.pos[0] + (sin(self.angle) * self.move_speed * self.tick),
+                            self.pos[1] + (cos(self.angle) * self.move_speed * self.tick))
+        elif direction is 2:  # forwards
             tmp_pos = (self.pos[0] - (sin(self.angle) * (self.move_speed * 1.2) * self.tick),
                        self.pos[1] - (cos(self.angle) * (self.move_speed * 1.2) * self.tick))
-        if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-            self.pos = tmp_pos
+            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+                self.pos = (self.pos[0] - (sin(self.angle) * self.move_speed * self.tick),
+                            self.pos[1] - (cos(self.angle) * self.move_speed * self.tick))
+        elif direction is 3:  # Strafe left
+            tmp_pos = (self.pos[0] + (sin(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick),
+                       self.pos[1] + (cos(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick))
+            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+                self.pos = (self.pos[0] + (sin(self.angle - pi / 2) * self.move_speed * self.tick),
+                            self.pos[1] + (cos(self.angle - pi / 2) * self.move_speed * self.tick))
+        elif direction is 4:  # Strafe right
+            tmp_pos = (self.pos[0] - (sin(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick),
+                       self.pos[1] - (cos(self.angle - pi / 2) * (self.move_speed * 1.2) * self.tick))
+            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+                self.pos = (self.pos[0] - (sin(self.angle - pi / 2) * self.move_speed * self.tick),
+                            self.pos[1] - (cos(self.angle - pi / 2) * self.move_speed * self.tick))
 
 
 
@@ -88,6 +103,9 @@ class Player(Entity):
     def __init__(self, game):
         super().__init__(pos=(3.0, 3.0), sprite=None, team=TEAM_PLAYER, game=game)
 
+        # List for W, A, S, D, Q, E (Q, E used for strafing)
+        self.wasdqe_held = [False, False, False, False, False, False]
+
     def update(self):
         super().update()
 
@@ -100,23 +118,31 @@ class Player(Entity):
         pass
 
     def move(self):
-        if self.wasd_held[0]:
-            self.move_check(True)
-        if self.wasd_held[1]:
+        if self.wasdqe_held[0]:  # W
+            self.move_check(1)
+        if self.wasdqe_held[1]:  # A
             self.angle -= 1.0 * self.tick
-        if self.wasd_held[2]:
-            self.move_check(False)
-        if self.wasd_held[3]:
+        if self.wasdqe_held[2]:  # S
+            self.move_check(2)
+        if self.wasdqe_held[3]:  # D
             self.angle += 1.0 * self.tick
+        if self.wasdqe_held[4]:  # Q
+            self.move_check(3)
+        if self.wasdqe_held[5]:  # E
+            self.move_check(4)
 
     def event(self, event, timer):
         super().event(event, timer)
         if event.type in (pg.KEYDOWN, pg.KEYUP):
             if event.key == pg.K_w:
-                self.wasd_held[0] = not self.wasd_held[0]
+                self.wasdqe_held[0] = not self.wasdqe_held[0]
             if event.key == pg.K_a:
-                self.wasd_held[1] = not self.wasd_held[1]
+                self.wasdqe_held[1] = not self.wasdqe_held[1]
             if event.key == pg.K_s:
-                self.wasd_held[2] = not self.wasd_held[2]
+                self.wasdqe_held[2] = not self.wasdqe_held[2]
             if event.key == pg.K_d:
-                self.wasd_held[3] = not self.wasd_held[3]
+                self.wasdqe_held[3] = not self.wasdqe_held[3]
+            if event.key == pg.K_q:
+                self.wasdqe_held[4] = not self.wasdqe_held[4]
+            if event.key == pg.K_e:
+                self.wasdqe_held[5] = not self.wasdqe_held[5]
