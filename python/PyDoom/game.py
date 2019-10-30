@@ -4,7 +4,7 @@ from timeit import default_timer as timer
 from entity import Player
 from level import Level
 from pydoom import PyDoom
-from render_manager import draw_level
+from render_manager import draw
 
 
 class Game(PyDoom):
@@ -16,7 +16,7 @@ class Game(PyDoom):
     def draw(self, surface, clock=None):
         # Hand off the render responsibilities to the render manager
         # start = timer()
-        draw_level(self, surface)
+        draw(self, surface)
         fps = "fps : {:.3f}".format(clock.get_fps())
         logger.on_screen_log(fps, surface)
 

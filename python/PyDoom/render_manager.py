@@ -23,7 +23,7 @@ def points_in_circum(offset=0, radius=100, n=100):
             for x in range(0, n + 1)]
 
 
-def draw_level(g, s):
+def draw(g, s):
     # localise these vars as it's more clear plus python accesses local variables faster
     # Expand player position for clarity
     player_pos_x = g.player.pos[0]

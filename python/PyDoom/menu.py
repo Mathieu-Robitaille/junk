@@ -22,7 +22,7 @@ class Menu(PyDoom):
             text = self.font.render(o, True, color)
             text_rect = text.get_rect()
             text_rect.center = (SCREEN_WIDTH / 2,
-                                SCREEN_HEIGHT / 2 - (len(self.options) * MENU_SPACING / 2) + MENU_SPACING * self.options.index(o))
+                                SCREEN_HEIGHT * 0.60 - (len(self.options) * MENU_SPACING / 2) + MENU_SPACING * self.options.index(o))
             surface.blit(text, text_rect)
 
     def change_active(self, move):

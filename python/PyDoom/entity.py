@@ -54,8 +54,8 @@ class Entity:
         "forwards, backwards, strafe left, strafe right"
         # This is really messy... How could I simplify this?
         if direction is 1:  # backwards
-            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos[1] + (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
+            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
+                       self.pos[1] + (cos(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos = (self.pos[0] + (sin(self.angle) * self.move_speed * self.tick),
                             self.pos[1] + (cos(self.angle) * self.move_speed * self.tick))

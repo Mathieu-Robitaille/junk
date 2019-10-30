@@ -16,14 +16,13 @@ IMAGE_LIBRARY = {}
 #   - load assets as they are needed
 def load_images():
     for file in listdir(IU_ASSET_DIR):
+        asset = join(IU_ASSET_DIR, file)
         try:
-            asset = join(IU_ASSET_DIR, file)
             if isfile(asset):
                 IMAGE_LIBRARY[file.split(sep)[-1]] = pg.image.load(asset)
-            else:
-                logger.log("image utilities | could not load : {}".format(asset))
         except Exception as e:
-            logger.log("!!! EXCEPTION !!!\nimage utilities\n\t{}".format(e))
+            logger.log("Failed to load image {}".format(asset))
+            logger.log(e)
 
 
 def get_image(image_name):
@@ -31,6 +30,7 @@ def get_image(image_name):
         try:
             IMAGE_LIBRARY[image_name] = pg.image.load(join(IU_ASSET_DIR, image_name))
         except Exception as e:
-            logger.log("!!! EXCEPTION !!!\nimage utilities\n\t{}".format(e))
+            logger.log("Failed to load image {}".format(image_name))
+            logger.log(e)
     return IMAGE_LIBRARY[image_name]
 
