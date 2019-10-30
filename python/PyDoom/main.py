@@ -33,7 +33,7 @@ class Doom(PyDoom):
         # In this game each "screen" is considered something that may have differing
         # methods to handle data. ex: on the game screen W, A, S, D would move the player,
         # While the menu screen may use W and S to navigate menu options
-        self.screens = [Menu(), Game()]
+        self.screens = [Menu("Main"), Menu("Options"), Game()]
 
         # Defaulting the game to start at the menu screen so we have the option to
         # load the previous game save, change options, etc...
@@ -69,13 +69,16 @@ class Doom(PyDoom):
                 self.change_to_menu()
             if event.key == pg.K_ESCAPE:
                 sys.exit()
-        if not self.active:
+        if self.active in (SCREEN_MENU, SCREEN_OPTIONS):
             self.screens[self.active].event(event, timer, pydoomobj=self)
         else:
             self.screens[self.active].event(event, timer)
 
     def change_to_menu(self):
         self.active = SCREEN_MENU
+
+    def change_to_options(self):
+        self.active = SCREEN_OPTIONS
 
     def change_to_game(self):
         self.active = SCREEN_GAME

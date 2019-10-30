@@ -58,7 +58,11 @@ RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET) - 30
 # Screen type "enums"
 #
 SCREEN_MENU = 0
-SCREEN_GAME = 1
+SCREEN_OPTIONS = 1
+SCREEN_GAME = 2
+
+MENU_OPTIONS_MAIN = ["New Game", "Options", "Exit"]
+MENU_OPTIONS_OPTION = ["Graphics : {}x{}".format(SCREEN_WIDTH, SCREEN_HEIGHT), "Volume : 100", "Back"]
 
 #
 # Entity "enums"
