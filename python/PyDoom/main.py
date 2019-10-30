@@ -65,17 +65,14 @@ class Doom(PyDoom):
         if event.type == pg.QUIT:
             sys.exit()
         if event.type == pg.KEYDOWN:
-            # if event.key == pg.K_SPACE:
-            #     self.change_to_game()
             if event.key == pg.K_1:
                 self.change_to_menu()
             if event.key == pg.K_ESCAPE:
                 sys.exit()
-        # THIS NEEDS TO CHANGE, RIGHT NOW IT WILL ALLOW
-        # THE USER TO CHANGE BACK AND FORTH BETWEEN SCREENS
-        # JUST BY PLAYING THE GAME
-        if self.screens[self.active].event(event, timer) == 1:
-            self.change_to_game()
+        if not self.active:
+            self.screens[self.active].event(event, timer, pydoomobj=self)
+        else:
+            self.screens[self.active].event(event, timer)
 
     def change_to_menu(self):
         self.active = SCREEN_MENU

@@ -26,12 +26,15 @@ class Menu(PyDoom):
         if 0 <= self.active + move <= len(self.options) - 1:
             self.active += move
 
-    def event(self, event, event_timer=0.0):
+    def event(self, event, event_timer, pydoomobj=None):
         if event.type == pg.KEYDOWN:
             if event.key in (pg.K_w, pg.K_UP):
                 self.change_active(-1)
             elif event.key in (pg.K_s, pg.K_DOWN):
                 self.change_active(1)
-            if event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 0:
-                return 1  # Whoa look how bad this is
+            if event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 0 and pydoomobj:
+                pydoomobj.change_to_game()
+            if event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 2 and pydoomobj:
+                pg.quit()
+
 
