@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <ostream>
 #include <chrono>
@@ -20,7 +21,16 @@ struct DistWall {
     float d; // Distance to the wall
     Point p; // Point of intersection
     Line  w; // Wall collided with
+    bool operator<(const DistWall& rhs) const { d < rhs.d; }
 };
+
+bool dist_compare(DistWall lhs, DistWall rhs) { 
+    return lhs.d < rhs.d; 
+}
+
+float dist_to_point(Point p1, Point p2) {
+    return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+}
 
 
 Point create_point(float x, float y){
@@ -67,15 +77,12 @@ Point line_intersection(Line l1, Line l2){
 
 std::vector<Line> get_walls(int argc, char** argv){
     std::vector<Line> walls;
-
-    for (int i = 4; i < argc - 4; i+=4) {
+    for (int i = 6; i < argc - 6; i+=6) {
         Point start = create_point(atof(argv[i]), atof(argv[i+1]));
         Point end = create_point(atof(argv[i+2]), atof(argv[i+3]));
         walls.push_back(create_line(start, end));
     }
-}
-float distance_to_point(Point p1, Point p2){
-
+    return walls;
 }
 
 std::vector<DistWall> get_intersections(Point player_pos, float player_angle, float player_fov, int iterations, std::vector<Line> walls){
@@ -91,13 +98,15 @@ std::vector<DistWall> get_intersections(Point player_pos, float player_angle, fl
         for(std::vector<int>::size_type j = 0; j != walls.size(); j++) {
             Point intersect = line_intersection(player_line, walls[j]);
             if (intersect.x != -1 && intersect.y != -1){
-                float dist = distance_to_point(player_pos, intersect);
+                float dist = dist_to_point(player_pos, intersect);
                 DistWall val = create_distwall(dist, intersect, walls[j]);
                 distances.push_back(val);
             }
-            
         }
+        std::sort(distances.begin(), distances.end(), dist_compare);
+        intersections.push_back(distances[0]);
     }
+    return intersections;
 }
 
 int main(int argc, char** argv){
@@ -117,7 +126,6 @@ int main(int argc, char** argv){
 
     time_pt_t end_time = std::chrono::steady_clock::now();
 
-    std::cout << "X: " << intersect.x << " | Y: " << intersect.y << std::endl;
 
     std::chrono::duration<double> et =
         std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);

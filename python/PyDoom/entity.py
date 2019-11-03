@@ -79,7 +79,6 @@ class Entity:
                             self.pos[1] - (cos(self.angle - pi / 2) * self.move_speed * self.tick))
 
 
-
 class Enemy(Entity):
     def __init__(self, game):
         super().__init__(pos=(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
