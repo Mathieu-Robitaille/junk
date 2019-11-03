@@ -124,7 +124,7 @@ def draw_screen(s, c):
 
 def draw_sprites(s, c):
     """
-    For sprite drawing we'll need to build a z buffer ordered by distance to the player, drawing each item in the list
+    For sprite drawing we'll need to build a "Z buffer" ordered by distance to the player, drawing each item in the list
     in reverse order (farthest thing first, closest thing last)
     :param s: surface to draw things to
     :param c: cast list, do I really need this????
