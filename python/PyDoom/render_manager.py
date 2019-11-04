@@ -32,6 +32,7 @@ def draw(g, s):
     player_fov = g.player.fov
     cast_list = []
 
+    # print(player_pos_x, player_pos_y, player_angle, player_fov, SCREEN_WIDTH, *g.level.walls[1:])
     """
     NEW PLAN!
     Instead of needlessly iterating over each pixel and messing with calculating each pixel's distance
@@ -40,14 +41,17 @@ def draw(g, s):
     """
 
     for i in range(int(SCREEN_WIDTH)):
+        if i % 10:
+            continue
         # Get the angle we want to cast to
         ray_angle = (player_angle - player_fov / 2.0) + float(i) / float(SCREEN_WIDTH) * player_fov
 
         # The line representing where the cast is evaluating
         player_line = ((player_pos_x, player_pos_y),
-                       (player_pos_x + sin(ray_angle) * 100, player_pos_y + cos(ray_angle) * 100))
+                       (player_pos_x + sin(ray_angle) * RENDER_DEPTH,
+                        player_pos_y + cos(ray_angle) * RENDER_DEPTH))
 
-        distances = [30]
+        distances = [RENDER_DEPTH]
         walls = [0]
 
         for wall in g.level.walls[1:]:
@@ -114,9 +118,9 @@ def draw_screen(s, c):
             color = (val, val, val)
 
             coordinates = [(x1, c[i][0]),  # Ceiling of current cell
-                           (x1, c[i + 1][0]),  # Ceiling of next cell
-                           (x2, c[i][1]),  # Floor of current cell
-                           (x2, c[i + 1][1])]  # Floor of next cell
+                           (x2, c[i + 1][0]),  # Ceiling of next cell
+                           (x2, c[i + 1][1]),  # Floor of next cell
+                           (x1, c[i][1])]  # Floor of current cell
             pg.draw.polygon(s, color, coordinates, 0)
         except IndexError as e:  # e here incase I want to use it later,
             logger.log("you done it now boy")
@@ -188,19 +192,30 @@ The following Line and Point classes are tools I used to help make figure out th
 It probably overly complicates things but it also makes it easier to work with in my noggin
 """
 
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
 
-    def __str__(self):
-        return "x: {0}, y: {1}".format(self.x, self.y)
+def distance_to_point(a, b):
+    """
+    A simple point to point distance measure tool
+    :param a: x, y coords of point a
+    :param b: x, y coords of point a
+    :return: float: distance between a and b
+    """
+    return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
-class Line:
-    def __init__(self, p1, p2):
-        self.p1 = Point(*p1)
-        self.p2 = Point(*p2)
+def is_on_line(p, l):
+    """
+    Checks if a point is on a line
+    :param p: Point to check of type Point
+    :param l: Line to be evaluated of type Line
+    :return: bool, True if the point is on the line, else false
+    """
+    # Create local version of this function for shorter code allowing it to be read
+    # on lower res screens easier
+    d = distance_to_point
+    if d(p, l.p1) + d(p, l.p2) == d(*l):
+        return True
+    return False
 
 
 def line_intersection(l1, l2):
@@ -237,16 +252,6 @@ def line_intersection(l1, l2):
         return x, y
     else:
         return False
-
-
-def distance_to_point(a, b):
-    """
-    A simple point to point distance measure tool
-    :param a: x, y coords of point a
-    :param b: x, y coords of point a
-    :return: float: distance between a and b
-    """
-    return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
 def normalize(val, old_min, old_max, new_min, new_max):

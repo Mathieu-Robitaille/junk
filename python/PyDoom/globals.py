@@ -50,7 +50,7 @@ MENU_SPACING = 40
 #
 # Render constants
 #
-RENDER_RAYCASTING_DEPTH = 30
+RENDER_DEPTH = 30
 # This is the divisor for ray casting, a larger number means more deg between rays
 RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET) - 30
 
@@ -88,12 +88,51 @@ FONT = "freesansbold.ttf"
 LOGGING_DIR = "logs"
 
 
+#
+# Data types and global functions
+#
+
 def two_d_to_one_d(xy, w):
+    """
+
+    :param xy:
+    :param w:
+    :return:
+    """
     return int(xy[1]) * w + int(xy[0])
 
 
 def one_d_to_two_d(cid, w):
+    """
+
+    :param cid:
+    :param w:
+    :return:
+    """
     return cid % w, int(cid / w)
+
+
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def __str__(self):
+        return "{} {}".format(self.x, self.y)
+
+
+class Line:
+    def __init__(self, p1, p2):
+        self.p1 = Point(*p1)
+        self.p2 = Point(*p2)
+
+    def __str__(self):
+        return "{} {}".format(self.p1, self.p2)
+
+class Wall:
+    def __init__(self, p1, p2, player_pos):
+        self.start = p1
+        self.end = p2
 
 
 #

@@ -21,7 +21,6 @@ struct DistWall {
     float d; // Distance to the wall
     Point p; // Point of intersection
     Line  w; // Wall collided with
-    bool operator<(const DistWall& rhs) const { d < rhs.d; }
 };
 
 bool dist_compare(DistWall lhs, DistWall rhs) { 
@@ -31,7 +30,6 @@ bool dist_compare(DistWall lhs, DistWall rhs) {
 float dist_to_point(Point p1, Point p2) {
     return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
 }
-
 
 Point create_point(float x, float y){
     Point point;
@@ -66,7 +64,7 @@ Point line_intersection(Line l1, Line l2){
     float ra = a / d;
     float rb = b / d;
 
-    if (0 <= ra <= 1 && 0<= rb <= 1){
+    if (0 <= ra && ra <= 1 && 0<= rb && rb <= 1){ // if (0 <= ra <= 1 && 0<= rb <= 1){ >?????????? why no worky????
         float x = l1.p1.x + (ra * (l1.p2.x - l1.p1.x));
         float y = l1.p1.y + (ra * (l1.p2.y - l1.p1.y));
         return create_point(x, y);
@@ -77,7 +75,7 @@ Point line_intersection(Line l1, Line l2){
 
 std::vector<Line> get_walls(int argc, char** argv){
     std::vector<Line> walls;
-    for (int i = 6; i < argc - 6; i+=6) {
+    for (int i = 6; i < argc - 4; i+=4) {
         Point start = create_point(atof(argv[i]), atof(argv[i+1]));
         Point end = create_point(atof(argv[i+2]), atof(argv[i+3]));
         walls.push_back(create_line(start, end));
@@ -87,23 +85,27 @@ std::vector<Line> get_walls(int argc, char** argv){
 
 std::vector<DistWall> get_intersections(Point player_pos, float player_angle, float player_fov, int iterations, std::vector<Line> walls){
     std::vector<DistWall> intersections;
-    for(int i = 0; i == iterations; i++){
-        float ray_angle = (player_angle - player_fov / 2) + i / iterations * player_fov;
+    for(int i = 0; i != iterations; i++){
+
+        float ray_angle = (player_angle - player_fov / 2.0f) + i / iterations * player_fov;
         float x = player_pos.x + sin(ray_angle) * 100;
         float y = player_pos.y + cos(ray_angle) * 100;
+
         Point player_end = create_point(x, y);
         Line player_line = create_line(player_pos, player_end);
         std::vector<DistWall> distances;
-        
-        for(std::vector<int>::size_type j = 0; j != walls.size(); j++) {
+
+        for(int j = 0; j != walls.size(); j++) {
             Point intersect = line_intersection(player_line, walls[j]);
             if (intersect.x != -1 && intersect.y != -1){
+                std::cout << "X: " << intersect.x << " | Y: " << intersect.y << std::endl;
                 float dist = dist_to_point(player_pos, intersect);
                 DistWall val = create_distwall(dist, intersect, walls[j]);
                 distances.push_back(val);
             }
         }
         std::sort(distances.begin(), distances.end(), dist_compare);
+        // std::cout << distances[0].d << std::endl;
         intersections.push_back(distances[0]);
     }
     return intersections;
@@ -122,10 +124,14 @@ int main(int argc, char** argv){
 
     time_pt_t start_time = std::chrono::steady_clock::now();
 
-    std::vector<DistWall> intersections = get_intersections(player_pos, player_angle, player_fov, iterations, walls);
+    std::vector<DistWall> intersections;
+    intersections = get_intersections(player_pos, player_angle, player_fov, iterations, walls);
 
     time_pt_t end_time = std::chrono::steady_clock::now();
 
+    //for(int i = 0; i != intersections.size(); i++){
+    //    std::cout << "Iter : " << i << "  Distance : " << intersections[i].d << std::endl;
+    //}
 
     std::chrono::duration<double> et =
         std::chrono::duration_cast<std::chrono::duration<double>>(end_time - start_time);

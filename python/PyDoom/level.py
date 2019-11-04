@@ -10,8 +10,8 @@ def get_map(width, height):
     # Return default test value
     return "###############" \
            "#             #" \
-           "#      #      #" \
-           "#      #      #" \
+           "#             #" \
+           "#             #" \
            "#             #" \
            "#    ##   #   #" \
            "#   ###   #   #" \
