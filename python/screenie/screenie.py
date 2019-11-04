@@ -68,7 +68,7 @@ def check_status(current_data_set):
         for i in range(len(current_data_set)):
             if convert_status_to_bool(current_data_set[i]) is not loaded_old_set[i]:
                 if loaded_old_set[i]:
-                    send_email('{} is down'.format(import_ips()[i]), 'mathieu.robitaille@primefocusworld.com', False)
+                    send_email('{} is down'.format(import_ips()[i]), 'mathieu@avidtwo.com', False)
 
 
 def send_email(data, dest_email, use_internal_relay=False):
@@ -78,12 +78,12 @@ def send_email(data, dest_email, use_internal_relay=False):
         syslog.syslog(syslog.LOG_INFO, 'Emailing {} about failed connection'.format(dest_email))
     try:
         if use_internal_relay:
-            server = smtplib.SMTP('smtp-mtl-01.primefocusworld.com')
+            server = smtplib.SMTP('smtp.avidtwo.com.')
         else:
             server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
-        server.login('notice@primefocusworld.com', 'Pr!m34oCus')
-        server.sendmail('notice@primefocusworld.com', dest_email, data)
+        server.login('notice@avidtwo.com', '100% the real password')
+        server.sendmail('notice@avidtwo.com', dest_email, data)
     except:
         if LINUX:
             syslog.syslog(syslog.LOG_ERR, 'Sending the email failed')
