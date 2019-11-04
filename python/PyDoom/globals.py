@@ -152,8 +152,8 @@ class Line:
 
 class Wall:
     def __init__(self, p1, p2, player_pos):
-        self.start = p1
-        self.end = p2
+        self.p1 = p1
+        self.p2 = p2
         self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p1, player_pos)
         self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p2, player_pos)
         self.floor_p1 = SCREEN_HEIGHT - self.ceiling_p1

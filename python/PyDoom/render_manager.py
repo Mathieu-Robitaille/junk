@@ -1,4 +1,4 @@
-from math import cos, sin, pi, fabs, sqrt
+from math import cos, sin, pi, fabs, sqrt, atan2
 from timeit import default_timer as timer
 
 import pygame as pg
@@ -24,74 +24,71 @@ def points_in_circum(offset=0, radius=100, n=100):
 
 
 def draw(g, s):
+    walls = build_z_buffer_walls(g)
+    draw_walls(s, g, walls)
+    # draw_sprites(s, cast_list)
+    draw_minimap(s, g, walls)
+
+
+def build_z_buffer_walls(g):
+    # The return value, we'll add all walls to be drawn to this list
+    z_buffer_walls = []
+
     # localise these vars as it's more clear plus python accesses local variables faster
     # Expand player position for clarity
     player_pos_x = g.player.pos.x
     player_pos_y = g.player.pos.y
     player_angle = g.player.angle
     player_fov = g.player.fov
-    cast_list = []
 
-    # print(player_pos_x, player_pos_y, player_angle, player_fov, SCREEN_WIDTH, *g.level.walls[1:])
-    """
-    NEW PLAN!
-    Instead of needlessly iterating over each pixel and messing with calculating each pixel's distance
-    Why not just get the distance to each wall, then draw gradients between those wall points????
-    
-    """
+    walls = g.level.walls[1:]
 
-    for i in range(int(SCREEN_WIDTH)):
-        if i % 10:
-            continue
-        # Get the angle we want to cast to
-        ray_angle = (player_angle - player_fov / 2.0) + float(i) / float(SCREEN_WIDTH) * player_fov
+    right_angle = (player_angle + player_fov / 2)
+    left_angle = (player_angle - player_fov / 2)
 
-        # The line representing where the cast is evaluating
-        player_line = ((player_pos_x, player_pos_y),
-                       (player_pos_x + sin(ray_angle) * RENDER_DEPTH,
-                        player_pos_y + cos(ray_angle) * RENDER_DEPTH))
+    right_line = Line(
+        (player_pos_x, player_pos_y),
+        (player_pos_x - sin(right_angle) * RENDER_DEPTH,
+         player_pos_y + cos(right_angle) * RENDER_DEPTH)
+    )
 
-        distances = [RENDER_DEPTH]
-        walls = [0]
+    left_line = Line(
+        (player_pos_x, player_pos_y),
+        (player_pos_x + sin(left_angle) * RENDER_DEPTH,
+         player_pos_y - cos(left_angle) * RENDER_DEPTH)
+    )
 
-        for wall in g.level.walls[1:]:
-            #
-            # This is very slow to collect all the data we need to draw a frame.
-            # Perhaps I can use C++ to build the data i need then unpack it in python is some way?
-            # Looks like it's possible
-            # https://docs.python.org/3/extending/extending.html
-            #
-            test = line_intersection(Line(*player_line), wall)
-            if not test:
-                continue
-            distance = distance_to_point((player_pos_x, player_pos_y), test)
-            distances.append(distance)
-            walls.append(wall)
-
-        # The distance we've found to the wall we're looking at
-        distance_to_wall = min(distances)
-        target_wall = walls[distances.index(distance_to_wall)]
-
-        # Calculate the top of the walls based off the screen
-        ceiling = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_wall
-
-        # Calc the floor
-        floor = SCREEN_HEIGHT - ceiling
-
-        max_size = sqrt(LEVEL_WIDTH * LEVEL_WIDTH + LEVEL_HEIGHT * LEVEL_HEIGHT)
-
-        # Normalize the color value in between 0-255
-        # This then needs to be "flipped" ex 240 would be 15
-        val = 255 - normalize(distance_to_wall, 0, max_size, 0, 255)
-
-        cast_list.append([ceiling, floor, i, val, target_wall])
-
-    draw_screen(s, cast_list)
-    draw_sprites(s, cast_list)
-    draw_minimap(s, g, cast_list)
+    for wall in walls:
+        w = wall
+        # Condense code a bit, if statements were getting long
+        pv = point_in_view
+        right_intersect = line_intersection(right_line, wall)
+        left_intersection = line_intersection(left_line, wall)
+        if right_intersect:
+            # Check which point is in player vision
+            p = wall.p1 if pv(wall.p1, g.player) else wall.p2
+            w = Wall(p, right_intersect, g.player.pos)
+        if left_intersection:
+            if right_intersect:
+                w = Wall(right_intersect, left_intersection, g.player.pos)
+            else:
+                p = wall.p1 if pv(wall.p1, g.player) else wall.p2
+                w = Wall(p, left_intersection, g.player.pos)
+        if not right_intersect and not left_intersection:
+            # check if its still in view
+            if pv(wall.p1, g.player) and pv(wall.p2, g.player):
+                w = Wall(wall.p1, wall.p2, g.player.pos)
+        if isinstance(w, Wall):
+            # Yes, this will append all walls interacted with into this buffer
+            # Either find a way to find the side of a wall facing the player so we do not
+            # draw both sides of a wall, or say heck it and draw it anyways.
+            # the previous solution would draw like 1200 polygons to the screen and that didnt
+            # seem to be the big slowdown so lets leave it for now.
+            z_buffer_walls.append(w)
+    return z_buffer_walls
 
 
-def draw_screen(s, c):
+def draw_walls(s, g, w):
     # Draw each cast as a vertical line to be matched up with the next cast for
     # smoooooth walls
 
@@ -103,24 +100,22 @@ def draw_screen(s, c):
     pg.draw.rect(s, (0, 64, 0),
                  (0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
 
-    for i in range(len(c)):
+    left_angle = (g.player.angle - g.player.fov / 2)
+    right_angle = (g.player.angle + g.player.fov / 2)
+
+    for i in w:
         try:
-            if i + 1 >= len(c):
-                continue  # finish the wall
-
-            if c[i][0] is 0 and c[i][1] is 0:
-                continue  # I'm super good at coding and this leaves the problem of not drawing the last line
-
-            # The X offsets of the current vertical line and the subsequent line
-            x1 = c[i][2]
-            x2 = c[i + 1][2]
-            val = c[i][3]
-            color = (val, val, val)
-
-            coordinates = [(x1, c[i][0]),  # Ceiling of current cell
-                           (x2, c[i + 1][0]),  # Ceiling of next cell
-                           (x2, c[i + 1][1]),  # Floor of next cell
-                           (x1, c[i][1])]  # Floor of current cell
+            t1 = get_angle(i.p1, g.player.pos)
+            t2 = get_angle(i.p2, g.player.pos)
+            x1 = normalize(t1, left_angle, right_angle, 0, SCREEN_WIDTH)
+            x2 = normalize(t2, left_angle, right_angle, 0, SCREEN_WIDTH)
+            coordinates = (
+                (x1, i.ceiling_p1),
+                (x1, i.floor_p1),
+                (x2, i.ceiling_p2),
+                (x2, i.floor_p2)
+            )
+            color = (i.color_p1, i.color_p1, i.color_p1)
             pg.draw.polygon(s, color, coordinates, 0)
         except IndexError as e:  # e here incase I want to use it later,
             logger.log("you done it now boy")
@@ -137,7 +132,7 @@ def draw_sprites(s, c):
     pass
 
 
-def draw_minimap(s, g, c):
+def draw_minimap(s, g, w):
     """
     DEBUG TOOL
     :param s:
@@ -172,10 +167,10 @@ def draw_minimap(s, g, c):
         end = (int(SCREEN_WIDTH - (wall.p2.x * LEVEL_CELL_SPACING)),
                int(wall.p2.y * LEVEL_CELL_SPACING))
         pg.draw.line(s, pg.Color("Green"), start, end)
-    for cast in c:
+    for wall in w:
         try:
-            ls = cast[4].p1
-            le = cast[4].p2
+            ls = wall.p1
+            le = wall.p2
             ls = (int(SCREEN_WIDTH - (ls.x * LEVEL_CELL_SPACING)),
                   int(ls.y * LEVEL_CELL_SPACING))
             le = (int(SCREEN_WIDTH - (le.x * LEVEL_CELL_SPACING)),
@@ -185,12 +180,6 @@ def draw_minimap(s, g, c):
             logger.log("index error")
         except TypeError as e:
             logger.log("Type error")
-
-
-"""
-The following Line and Point classes are tools I used to help make figure out this code easier, does it need to be here?
-It probably overly complicates things but it also makes it easier to work with in my noggin
-"""
 
 
 def distance_to_point(a, b):
@@ -230,16 +219,16 @@ def line_intersection(l1, l2):
     :param l2: A line object
     :return: x, y or False
     """
-    d = (l2.p2.y - l2.p1.y) * (l1.p2.x - l1.p1.x)\
+    d = (l2.p2.y - l2.p1.y) * (l1.p2.x - l1.p1.x) \
         - \
         (l2.p2.x - l2.p1.x) * (l1.p2.y - l1.p1.y)
     if d == 0:
         return False
 
-    a = (l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y)\
+    a = (l2.p2.x - l2.p1.x) * (l1.p1.y - l2.p1.y) \
         - \
         (l2.p2.y - l2.p1.y) * (l1.p1.x - l2.p1.x)
-    b = (l1.p2.x - l1.p1.x) * (l1.p1.y - l2.p1.y)\
+    b = (l1.p2.x - l1.p1.x) * (l1.p1.y - l2.p1.y) \
         - \
         (l1.p2.y - l1.p1.y) * (l1.p1.x - l2.p1.x)
 
@@ -249,7 +238,7 @@ def line_intersection(l1, l2):
     if 0 <= ra <= 1 and 0 <= rb <= 1:
         x = l1.p1.x + (ra * (l1.p2.x - l1.p1.x))
         y = l1.p1.y + (ra * (l1.p2.y - l1.p1.y))
-        return x, y
+        return Point(x, y)
     else:
         return False
 
@@ -259,3 +248,29 @@ def normalize(val, old_min, old_max, new_min, new_max):
     new_range = new_max - new_min
     return ((val - old_min) * new_range) / old_range + new_min
 
+
+def calc_ceiling(d):
+    return (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / d
+
+
+def calc_floor(c):
+    return SCREEN_HEIGHT - c
+
+
+def get_angle(p1, p2):
+    return atan2(p1.y - p2.y, p1.x - p2.x)
+
+
+def point_in_view(p, c):
+    """
+    Checks if point (p) is in character (c) vision
+    :param p: Point object
+    :param c: Character/Entity object with angle, fov, and pos values
+    :return: True/False
+    """
+    right_angle = (c.angle + c.fov / 2)
+    left_angle = (c.angle - c.fov / 2)
+    t = atan2(c.pos.y - p.y, c.pos.x - p.x)
+    if left_angle <= t <= right_angle:
+        return True
+    return False
