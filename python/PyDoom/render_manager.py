@@ -26,8 +26,8 @@ def points_in_circum(offset=0, radius=100, n=100):
 def draw(g, s):
     # localise these vars as it's more clear plus python accesses local variables faster
     # Expand player position for clarity
-    player_pos_x = g.player.pos[0]
-    player_pos_y = g.player.pos[1]
+    player_pos_x = g.player.pos.x
+    player_pos_y = g.player.pos.y
     player_angle = g.player.angle
     player_fov = g.player.fov
     cast_list = []
@@ -61,7 +61,7 @@ def draw(g, s):
             # Looks like it's possible
             # https://docs.python.org/3/extending/extending.html
             #
-            test = line_intersection(Line(*player_line), Line(*wall))
+            test = line_intersection(Line(*player_line), wall)
             if not test:
                 continue
             distance = distance_to_point((player_pos_x, player_pos_y), test)
@@ -153,33 +153,33 @@ def draw_minimap(s, g, c):
                   LEVEL_HEIGHT * LEVEL_CELL_SPACING))
 
     # Translate the current player's position to the mini map structure
-    player_pos = (int(SCREEN_WIDTH - (g.player.pos[0] * LEVEL_CELL_SPACING)),
-                  int(g.player.pos[1] * LEVEL_CELL_SPACING))
+    player_pos = (int(SCREEN_WIDTH - (g.player.pos.x * LEVEL_CELL_SPACING)),
+                  int(g.player.pos.y * LEVEL_CELL_SPACING))
 
     # Draw the player fov
-    player_left_aim = (player_pos[0] - 20 * sin(g.player.angle - g.player.fov / 2),
-                       player_pos[1] + 20 * cos(g.player.angle - g.player.fov / 2))
     player_right_aim = (player_pos[0] - 20 * sin(g.player.angle + g.player.fov / 2),
                         player_pos[1] + 20 * cos(g.player.angle + g.player.fov / 2))
+    player_left_aim = (player_pos[0] - 20 * sin(g.player.angle - g.player.fov / 2),
+                       player_pos[1] + 20 * cos(g.player.angle - g.player.fov / 2))
     pg.draw.line(s, pg.Color("Red"), player_pos, player_left_aim)
     pg.draw.line(s, pg.Color("Red"), player_pos, player_right_aim)
 
     # Player
     pg.draw.circle(s, pg.Color("red"), player_pos, 1)
     for wall in g.level.walls:
-        start = (int(SCREEN_WIDTH - (wall[0][0] * LEVEL_CELL_SPACING)),
-                 int(wall[0][1] * LEVEL_CELL_SPACING))
-        end = (int(SCREEN_WIDTH - (wall[1][0] * LEVEL_CELL_SPACING)),
-               int(wall[1][1] * LEVEL_CELL_SPACING))
+        start = (int(SCREEN_WIDTH - (wall.p1.x * LEVEL_CELL_SPACING)),
+                 int(wall.p1.y * LEVEL_CELL_SPACING))
+        end = (int(SCREEN_WIDTH - (wall.p2.x * LEVEL_CELL_SPACING)),
+               int(wall.p2.y * LEVEL_CELL_SPACING))
         pg.draw.line(s, pg.Color("Green"), start, end)
     for cast in c:
         try:
-            ls = cast[4][0]
-            le = cast[4][1]
-            ls = (int(SCREEN_WIDTH - (ls[0] * LEVEL_CELL_SPACING)),
-                  int(ls[1] * LEVEL_CELL_SPACING))
-            le = (int(SCREEN_WIDTH - (le[0] * LEVEL_CELL_SPACING)),
-                  int(le[1] * LEVEL_CELL_SPACING))
+            ls = cast[4].p1
+            le = cast[4].p2
+            ls = (int(SCREEN_WIDTH - (ls.x * LEVEL_CELL_SPACING)),
+                  int(ls.y * LEVEL_CELL_SPACING))
+            le = (int(SCREEN_WIDTH - (le.x * LEVEL_CELL_SPACING)),
+                  int(le.y * LEVEL_CELL_SPACING))
             pg.draw.line(s, pg.Color("Red"), ls, le)
         except IndexError:
             logger.log("index error")

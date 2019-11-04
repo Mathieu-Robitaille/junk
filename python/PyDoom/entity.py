@@ -1,11 +1,18 @@
 import pygame as pg
 
 from math import pi, cos, sin
-from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d
+from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point
 
 
 class Entity:
     def __init__(self, pos, sprite, team, game):
+        """
+
+        :param pos: Point object
+        :param sprite:
+        :param team:
+        :param game:
+        """
         # This entity's position in X, Y
         self.pos = pos
         # This entity's facing angle
@@ -54,34 +61,34 @@ class Entity:
         "forwards, backwards, strafe left, strafe right"
         # This is really messy... How could I simplify this?
         if direction is 1:  # backwards
-            tmp_pos = (self.pos[0] + (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
-                       self.pos[1] + (cos(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick))
+            tmp_pos = (self.pos.x + (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
+                       self.pos.y + (cos(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos = (self.pos[0] + (sin(self.angle) * self.move_speed * self.tick),
-                            self.pos[1] + (cos(self.angle) * self.move_speed * self.tick))
+                self.pos.x = self.pos.x + (sin(self.angle) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y + (cos(self.angle) * self.move_speed * self.tick)
         elif direction is 2:  # forwards
-            tmp_pos = (self.pos[0] - (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos[1] - (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
+            tmp_pos = (self.pos.x - (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos.y - (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos = (self.pos[0] - (sin(self.angle) * self.move_speed * self.tick),
-                            self.pos[1] - (cos(self.angle) * self.move_speed * self.tick))
+                self.pos.x = self.pos.x - (sin(self.angle) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y - (cos(self.angle) * self.move_speed * self.tick)
         elif direction is 3:  # Strafe left
-            tmp_pos = (self.pos[0] + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos[1] + (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
+            tmp_pos = (self.pos.x + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos.y + (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos = (self.pos[0] + (sin(self.angle - pi / 2) * self.move_speed * self.tick),
-                            self.pos[1] + (cos(self.angle - pi / 2) * self.move_speed * self.tick))
+                self.pos.x = self.pos.x + (sin(self.angle - pi / 2) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y + (cos(self.angle - pi / 2) * self.move_speed * self.tick)
         elif direction is 4:  # Strafe right
-            tmp_pos = (self.pos[0] - (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos[1] - (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
+            tmp_pos = (self.pos.x - (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos.y - (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos = (self.pos[0] - (sin(self.angle - pi / 2) * self.move_speed * self.tick),
-                            self.pos[1] - (cos(self.angle - pi / 2) * self.move_speed * self.tick))
+                self.pos.x = self.pos.x - (sin(self.angle - pi / 2) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y - (cos(self.angle - pi / 2) * self.move_speed * self.tick)
 
 
 class Enemy(Entity):
     def __init__(self, game):
-        super().__init__(pos=(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
+        super().__init__(pos=Point(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
 
     def update(self):
@@ -102,7 +109,7 @@ class Enemy(Entity):
 
 class Player(Entity):
     def __init__(self, game):
-        super().__init__(pos=(3.0, 3.0), sprite=None, team=TEAM_PLAYER, game=game)
+        super().__init__(pos=Point(3.0, 3.0), sprite=None, team=TEAM_PLAYER, game=game)
 
         # List for W, A, S, D, Q, E (Q, E used for strafing)
         self.wasdqe_held = [False, False, False, False, False, False]

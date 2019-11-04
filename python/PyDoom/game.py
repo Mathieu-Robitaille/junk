@@ -17,7 +17,7 @@ class Game(PyDoom):
         # Hand off the render responsibilities to the render manager
         # start = timer()
         draw(self, surface)
-        fps = "fps : {:.3f}".format(clock.get_fps())
+        fps = "fps : {:.2f}".format(clock.get_fps())
         logger.on_screen_log(fps, surface)
 
     def update(self):

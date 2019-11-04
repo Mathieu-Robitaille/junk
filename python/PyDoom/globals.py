@@ -1,4 +1,7 @@
-VERSION = "0.0.2"
+from math import sqrt
+
+VERSION = "0.0.3"
+
 
 #
 # All constants must begin with const type then constname
@@ -90,6 +93,7 @@ LOGGING_DIR = "logs"
 
 #
 # Data types and global functions
+# Should probably go into its own file "SaSM"?? Structures and supporting methods?
 #
 
 def two_d_to_one_d(xy, w):
@@ -112,6 +116,22 @@ def one_d_to_two_d(cid, w):
     return cid % w, int(cid / w)
 
 
+def distance_to_point(a, b):
+    """
+    A simple point to point distance measure tool
+    :param a: x, y coords of point a
+    :param b: x, y coords of point a
+    :return: float: distance between a and b
+    """
+    return sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+
+
+def normalize(val, old_min, old_max, new_min, new_max):
+    old_range = old_max - old_min
+    new_range = new_max - new_min
+    return ((val - old_min) * new_range) / old_range + new_min
+
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -129,11 +149,17 @@ class Line:
     def __str__(self):
         return "{} {}".format(self.p1, self.p2)
 
+
 class Wall:
     def __init__(self, p1, p2, player_pos):
         self.start = p1
         self.end = p2
-
+        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p1, player_pos)
+        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p2, player_pos)
+        self.floor_p1 = SCREEN_HEIGHT - self.ceiling_p1
+        self.floor_p2 = SCREEN_HEIGHT - self.ceiling_p2
+        self.color_p1 = 255 - normalize(distance_to_point(p1, player_pos), 0, RENDER_DEPTH, 0, 255)
+        self.color_p2 = 255 - normalize(distance_to_point(p2, player_pos), 0, RENDER_DEPTH, 0, 255)
 
 #
 #

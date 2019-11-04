@@ -81,7 +81,7 @@ def create_wall(c, l, d):
         ending = starting[0], starting[1] + 1
     elif d == "W":
         ending = starting[0], starting[1] + 1
-    l.walls.append((starting, ending))
+    l.walls.append(Line(starting, ending))
     return wall_id
 
 
@@ -93,9 +93,9 @@ def extend_wall(i, l, d):
     :return:
     """
     if d in ("N", "S"):
-        l.walls[i] = (l.walls[i][0], (l.walls[i][1][0] + 1, l.walls[i][1][1]))
+        l.walls[i].p2.x += 1
     elif d in ("E", "W"):
-        l.walls[i] = (l.walls[i][0], (l.walls[i][1][0], l.walls[i][1][1] + 1))
+        l.walls[i].p2.y += 1
 
 
 def carry_or_create_wall(c, l):
@@ -167,8 +167,8 @@ class Level:
         self.width = LEVEL_WIDTH
         self.height = LEVEL_HEIGHT
 
-        # Walls are stored as ((startx, starty), (endx, endy)) with the index being the id of the wall
-        self.walls = [((0, 0), (0, 0))]
+        # Walls are stored as a Line obj with the index being the id of the wall
+        self.walls = [Line((0, 0), (0, 0))]
         self.map = create_cells(get_map(self.width, self.height))
         for cell in self.map:
             carry_or_create_wall(cell, self)
