@@ -12,6 +12,7 @@ try:
     from colorama import Fore, Back, Style
 except ImportError:
     print("Could not import colorama, please install it \n\t pip3 install colorama")
+    sys.exit(0)
 
 LINUX = False
 if sys.platform.startswith("linux"):
