@@ -1,6 +1,7 @@
 from math import cos, sin, pi, fabs, sqrt, atan2
 from timeit import default_timer as timer
 
+import numpy as np
 import pygame as pg
 import logger
 from globals import *
@@ -34,10 +35,7 @@ def build_z_buffer_walls(g):
     # The return value, we'll add all walls to be drawn to this list
     z_buffer_walls = []
 
-    # localise these vars as it's more clear plus python accesses local variables faster
-    # Expand player position for clarity
-    player_pos_x = g.player.pos.x
-    player_pos_y = g.player.pos.y
+    pos = g.player.pos
     player_angle = g.player.angle
     player_fov = g.player.fov
 
@@ -47,44 +45,42 @@ def build_z_buffer_walls(g):
     left_angle = (player_angle - player_fov / 2)
 
     right_line = Line(
-        (player_pos_x, player_pos_y),
-        (player_pos_x - sin(right_angle) * RENDER_DEPTH,
-         player_pos_y + cos(right_angle) * RENDER_DEPTH)
+        (pos.x, pos.y),
+        (pos.x + sin(right_angle) * RENDER_DEPTH,
+         pos.y + cos(right_angle) * RENDER_DEPTH)
     )
 
     left_line = Line(
-        (player_pos_x, player_pos_y),
-        (player_pos_x + sin(left_angle) * RENDER_DEPTH,
-         player_pos_y - cos(left_angle) * RENDER_DEPTH)
+        (pos.x, pos.y),
+        (pos.x + sin(left_angle) * RENDER_DEPTH,
+         pos.y + cos(left_angle) * RENDER_DEPTH)
     )
 
     for wall in walls:
-        w = wall
         # Condense code a bit, if statements were getting long
         pv = point_in_view
-        right_intersect = line_intersection(right_line, wall)
-        left_intersection = line_intersection(left_line, wall)
-        if right_intersect:
-            # Check which point is in player vision
+        ri = line_intersection(right_line, wall)
+        li = line_intersection(left_line, wall)
+
+        if ri and li:
+            z_buffer_walls.append(Wall(li, ri, pos))
+            continue
+
+        if ri:
+            p = wall.p2 if pv(wall.p2, g.player) else wall.p1
+            z_buffer_walls.append(Wall(p, ri, pos))
+            continue
+
+        if li:
             p = wall.p1 if pv(wall.p1, g.player) else wall.p2
-            w = Wall(p, right_intersect, g.player.pos)
-        if left_intersection:
-            if right_intersect:
-                w = Wall(right_intersect, left_intersection, g.player.pos)
-            else:
-                p = wall.p1 if pv(wall.p1, g.player) else wall.p2
-                w = Wall(p, left_intersection, g.player.pos)
-        if not right_intersect and not left_intersection:
+            z_buffer_walls.append(Wall(li, p, pos))
+            continue
+
+        if not ri and not li:
             # check if its still in view
             if pv(wall.p1, g.player) and pv(wall.p2, g.player):
-                w = Wall(wall.p1, wall.p2, g.player.pos)
-        if isinstance(w, Wall):
-            # Yes, this will append all walls interacted with into this buffer
-            # Either find a way to find the side of a wall facing the player so we do not
-            # draw both sides of a wall, or say heck it and draw it anyways.
-            # the previous solution would draw like 1200 polygons to the screen and that didnt
-            # seem to be the big slowdown so lets leave it for now.
-            z_buffer_walls.append(w)
+                z_buffer_walls.append(Wall(wall.p1, wall.p2, pos))
+
     return z_buffer_walls
 
 
@@ -100,25 +96,43 @@ def draw_walls(s, g, w):
     pg.draw.rect(s, (0, 64, 0),
                  (0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
 
+    pos = g.player.pos
+
     left_angle = (g.player.angle - g.player.fov / 2)
     right_angle = (g.player.angle + g.player.fov / 2)
 
-    for i in w:
-        try:
-            t1 = get_angle(i.p1, g.player.pos)
-            t2 = get_angle(i.p2, g.player.pos)
-            x1 = normalize(t1, left_angle, right_angle, 0, SCREEN_WIDTH)
-            x2 = normalize(t2, left_angle, right_angle, 0, SCREEN_WIDTH)
-            coordinates = (
-                (x1, i.ceiling_p1),
-                (x1, i.floor_p1),
-                (x2, i.ceiling_p2),
-                (x2, i.floor_p2)
-            )
-            color = (i.color_p1, i.color_p1, i.color_p1)
-            pg.draw.polygon(s, color, coordinates, 0)
-        except IndexError as e:  # e here incase I want to use it later,
-            logger.log("you done it now boy")
+    # for i in w:
+    #     try:
+    #         right_line = Line((pos.x, pos.y),
+    #                           (pos.x + sin(right_angle) * RENDER_DEPTH,
+    #                            pos.y + cos(right_angle) * RENDER_DEPTH))
+    #
+    #         left_line = Line((pos.x, pos.y),
+    #                          (pos.x + sin(left_angle) * RENDER_DEPTH,
+    #                           pos.y + cos(left_angle) * RENDER_DEPTH))
+    #
+    #         if not is_on_line(i.p1, left_line):
+    #             t1 = left_angle
+    #         else:
+    #             t1 = get_angle(pos, left_angle, i.p1)
+    #         if not is_on_line(i.p2, right_line):
+    #             t2 = right_angle
+    #         else:
+    #             t2 = get_angle(pos, left_angle, i.p2)
+    #         x1 = normalize(t1, left_angle, right_angle, 0, SCREEN_WIDTH)
+    #         x2 = normalize(t2, left_angle, right_angle, 0, SCREEN_WIDTH)
+    #         coordinates = (
+    #             (x1, i.ceiling_p1),
+    #             (x2, i.ceiling_p2),
+    #             (x2, i.floor_p2),
+    #             (x1, i.floor_p1)
+    #         )
+    #         color = (i.color_p1, i.color_p1, i.color_p1)
+    #         pg.draw.polygon(s, color, coordinates, 0)
+    #     except IndexError as e:  # e here incase I want to use it later,
+    #         logger.log("you done it now boy")
+    #     except TypeError:
+    #         logger.log("points err", coordinates)
 
 
 def draw_sprites(s, c):
@@ -152,10 +166,10 @@ def draw_minimap(s, g, w):
                   int(g.player.pos.y * LEVEL_CELL_SPACING))
 
     # Draw the player fov
-    player_right_aim = (player_pos[0] - 20 * sin(g.player.angle + g.player.fov / 2),
-                        player_pos[1] + 20 * cos(g.player.angle + g.player.fov / 2))
-    player_left_aim = (player_pos[0] - 20 * sin(g.player.angle - g.player.fov / 2),
-                       player_pos[1] + 20 * cos(g.player.angle - g.player.fov / 2))
+    player_right_aim = (player_pos[0] - 200 * sin(g.player.angle + g.player.fov / 2),
+                        player_pos[1] + 200 * cos(g.player.angle + g.player.fov / 2))
+    player_left_aim = (player_pos[0] - 200 * sin(g.player.angle - g.player.fov / 2),
+                       player_pos[1] + 200 * cos(g.player.angle - g.player.fov / 2))
     pg.draw.line(s, pg.Color("Red"), player_pos, player_left_aim)
     pg.draw.line(s, pg.Color("Red"), player_pos, player_right_aim)
 
@@ -189,6 +203,9 @@ def distance_to_point(a, b):
     :param b: x, y coords of point a
     :return: float: distance between a and b
     """
+    if isinstance(a, Point) and isinstance(b, Point):
+        r = sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+        return r
     return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
@@ -199,10 +216,8 @@ def is_on_line(p, l):
     :param l: Line to be evaluated of type Line
     :return: bool, True if the point is on the line, else false
     """
-    # Create local version of this function for shorter code allowing it to be read
-    # on lower res screens easier
     d = distance_to_point
-    if d(p, l.p1) + d(p, l.p2) == d(*l):
+    if d(p, l.p1) + d(p, l.p2) == d(l.p1, l.p2):
         return True
     return False
 
@@ -243,22 +258,12 @@ def line_intersection(l1, l2):
         return False
 
 
-def normalize(val, old_min, old_max, new_min, new_max):
-    old_range = old_max - old_min
-    new_range = new_max - new_min
-    return ((val - old_min) * new_range) / old_range + new_min
-
-
 def calc_ceiling(d):
     return (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / d
 
 
 def calc_floor(c):
     return SCREEN_HEIGHT - c
-
-
-def get_angle(p1, p2):
-    return atan2(p1.y - p2.y, p1.x - p2.x)
 
 
 def point_in_view(p, c):
@@ -270,7 +275,24 @@ def point_in_view(p, c):
     """
     right_angle = (c.angle + c.fov / 2)
     left_angle = (c.angle - c.fov / 2)
-    t = atan2(c.pos.y - p.y, c.pos.x - p.x)
+    t = get_angle(c.pos, left_angle, p)
     if left_angle <= t <= right_angle:
         return True
     return False
+
+
+def get_angle(e, l, p):
+    """
+
+    :param e: Entity we're measuring from
+    :param l: Left extreme of vision angle in Radians
+    :param p: Point we're getting the angle to
+    :return: Radians
+    """
+    a = np.array([e.x, e.y])
+    b = np.array([e.x + sin(l) * RENDER_DEPTH, e.y + cos(l) * RENDER_DEPTH])
+    c = np.array([p.x, p.y])
+    ba = a - b
+    bc = c - b
+    cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+    return np.arccos(cos_ang)

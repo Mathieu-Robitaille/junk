@@ -1,4 +1,5 @@
 from math import sqrt
+from dataclasses import dataclass
 
 VERSION = "0.0.3"
 
@@ -127,9 +128,23 @@ def distance_to_point(a, b):
 
 
 def normalize(val, old_min, old_max, new_min, new_max):
+    if val == 0:
+        return 0
     old_range = old_max - old_min
     new_range = new_max - new_min
     return ((val - old_min) * new_range) / old_range + new_min
+
+
+def sub(v1, v2):
+    return Point(v1.x - v2.x, v1.y - v2.y)
+
+
+def mag(vec):
+    return sqrt(vec.x ** 2 + vec.y ** 2)
+
+
+def dot(v1, v2):
+    return v1.x * v2.x + v1.y * v2.y
 
 
 class Point:
@@ -137,17 +152,11 @@ class Point:
         self.x = x
         self.y = y
 
-    def __str__(self):
-        return "{} {}".format(self.x, self.y)
-
 
 class Line:
     def __init__(self, p1, p2):
         self.p1 = Point(*p1)
         self.p2 = Point(*p2)
-
-    def __str__(self):
-        return "{} {}".format(self.p1, self.p2)
 
 
 class Wall:
@@ -164,3 +173,4 @@ class Wall:
 #
 #
 #
+

@@ -34,10 +34,10 @@ Ideas:
         the order in which to draw objects.
 
         To do this I'll need to do the following.
-        Calculate the point of intersection for all walls and the extreemes of player vision by sending a ray
-        out in the exact same manner i've done it for the minimap view cone.intersection
+        Calculate the point of intersection for all walls and the extremes of player vision by sending a ray
+        out in the exact same manner i've done it for the minimap view cone.
 
-        Once we know what walls intersect with the extreemes of the player's vision we can create new walls
+        Once we know what walls intersect with the extremes of the player's vision we can create new walls
         and check the distance to them, allowing us to store them ordered by that distance.
 
         Once we have which walls intersect with our vision we can then focus on walls that are within our vision.
