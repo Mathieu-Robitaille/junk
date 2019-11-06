@@ -26,6 +26,7 @@ def points_in_circum(offset=0, radius=100, n=100):
 
 def draw(g, s):
     walls = build_z_buffer_walls(g)
+    walls.sort(key=lambda Wall: Wall.n_d, reverse=True)
     draw_walls(s, g, walls)
     # draw_sprites(s, cast_list)
     draw_minimap(s, g, walls)
@@ -192,18 +193,10 @@ def draw_minimap(s, g, w):
             logger.log("Type error")
 
 
-def distance_to_point(a, b):
-    """
-    A simple point to point distance measure tool
-    :param a: x, y coords of point a
-    :param b: x, y coords of point a
-    :return: float: distance between a and b
-    """
-    if isinstance(a, Point) and isinstance(b, Point):
-        r = sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
-        return r
-    return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
-
+"""
+Below are the supporting functions 
+These all need error checking, type checking, and comments
+"""
 
 def is_on_line(p, l):
     """
@@ -376,17 +369,5 @@ def get_angle(e, f, p):
     bc = b - c
     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
     return np.arccos(cos_ang) * 10
-
-
-
-"""
-https://gamedev.stackexchange.com/questions/176898/find-angle-to-a-point
-how make work......
-"""
-#
-# def get_angle(e, p):
-#     y = p.y - e.pos.y
-#     x = p.x - e.pos.x
-#     return (normalize(atan2(y, x), -pi, pi, 0, 2 * pi) - pi / 2) % 2 * pi
 
 

@@ -127,7 +127,11 @@ def distance_to_point(a, b):
     :param b: x, y coords of point a
     :return: float: distance between a and b
     """
-    return sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+    if isinstance(a, Point) and isinstance(b, Point):
+        r = sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
+        return r
+    return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
+
 
 
 def normalize(val, old_min, old_max, new_min, new_max):
@@ -172,12 +176,27 @@ class Wall:
     def __init__(self, p1, p2, player_pos):
         self.p1 = p1
         self.p2 = p2
-        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p1, player_pos)
-        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / distance_to_point(p2, player_pos)
+        self.p1_d = distance_to_point(player_pos, p1)
+        self.p2_d = distance_to_point(player_pos, p2)
+        self.n_d = abs(self.p1_d - self.p2_d)
+        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p1_d
+        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p1_d
         self.floor_p1 = SCREEN_HEIGHT - self.ceiling_p1
         self.floor_p2 = SCREEN_HEIGHT - self.ceiling_p2
         self.color_p1 = 255 - normalize(distance_to_point(p1, player_pos), 0, RENDER_DEPTH, 0, 255)
         self.color_p2 = 255 - normalize(distance_to_point(p2, player_pos), 0, RENDER_DEPTH, 0, 255)
+
+    def __str__(self):
+        return str(self.n_d)
+
+    def __lt__(self, other):
+        if isinstance(other, Wall):
+            return self.n_d < self.n_d
+
+    def __gt__(self, other):
+        if isinstance(other, Wall):
+            return self.n_d > self.n_d
+
 
 #
 #
