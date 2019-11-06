@@ -367,6 +367,11 @@ def get_left_minimap_extreme(p, a, f, d=200):
 #     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
 #     return np.arccos(cos_ang)
 
+"""
+https://gamedev.stackexchange.com/questions/176898/find-angle-to-a-point
+how make work......
+"""
+
 def get_angle(e, p):
     y = p.y - e.pos.y
     x = p.x - e.pos.x
