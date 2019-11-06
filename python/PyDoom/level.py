@@ -15,12 +15,12 @@ def get_map(width, height):
            "#             #" \
            "#   ###   #   #" \
            "#   #     #   #" \
-           "#   #     #   #" \
-           "#   #     #   #" \
+           "#   #  #  #   #" \
+           "#   #  #  #   #" \
            "###########   #" \
            "#             #" \
-           "#             #" \
-           "#             #" \
+           "#    # ##     #" \
+           "#    ###      #" \
            "#             #" \
            "###############"
 
@@ -186,7 +186,7 @@ class Level:
 
         # Walls are stored as a Line obj with the index being the id of the wall
         self.walls = [Line((0, 0), (0, 0))]
-        self.map = create_cells(get_map2(self.width, self.height))
+        self.map = create_cells(get_map(self.width, self.height))
         for cell in self.map:
             carry_or_create_wall(cell, self)
 
