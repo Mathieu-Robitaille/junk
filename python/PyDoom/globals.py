@@ -56,7 +56,10 @@ MENU_SPACING = 40
 #
 RENDER_DEPTH = 30
 # This is the divisor for ray casting, a larger number means more deg between rays
-RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET) - 30
+
+
+
+RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET)
 
 #
 # Screen type "enums"
@@ -152,11 +155,17 @@ class Point:
         self.x = x
         self.y = y
 
+    def __str__(self):
+        return "{} {}".format(self.x, self.y)
+
 
 class Line:
     def __init__(self, p1, p2):
-        self.p1 = Point(*p1)
-        self.p2 = Point(*p2)
+        self.p1 = Point(*p1) if not isinstance(p1, Point) else p1
+        self.p2 = Point(*p2) if not isinstance(p2, Point) else p2
+
+    def __str__(self):
+        return "{} {}".format(self.p1, self.p2)
 
 
 class Wall:

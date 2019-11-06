@@ -9,21 +9,38 @@ from timeit import default_timer as timer
 def get_map(width, height):
     # Return default test value
     return "###############" \
+           "#         #   #" \
+           "#       #  #  #" \
+           "#        #    #" \
            "#             #" \
-           "#             #" \
-           "#             #" \
-           "#             #" \
-           "#    ##   #   #" \
            "#   ###   #   #" \
            "#   #     #   #" \
            "#   #     #   #" \
-           "#   #  #      #" \
+           "#   #     #   #" \
+           "###########   #" \
            "#             #" \
            "#             #" \
            "#             #" \
            "#             #" \
            "###############"
 
+def get_map2(width, height):
+    # Return default test value
+    return "###############" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#     ##      #" \
+           "#     ##      #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "#             #" \
+           "###############"
 
 def create_cells(level_map):
     # WHO NEEDS READABILITY
@@ -169,7 +186,7 @@ class Level:
 
         # Walls are stored as a Line obj with the index being the id of the wall
         self.walls = [Line((0, 0), (0, 0))]
-        self.map = create_cells(get_map(self.width, self.height))
+        self.map = create_cells(get_map2(self.width, self.height))
         for cell in self.map:
             carry_or_create_wall(cell, self)
 

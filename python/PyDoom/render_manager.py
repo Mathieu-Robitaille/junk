@@ -41,19 +41,14 @@ def build_z_buffer_walls(g):
 
     walls = g.level.walls[1:]
 
-    right_angle = (player_angle + player_fov / 2)
-    left_angle = (player_angle - player_fov / 2)
-
     right_line = Line(
         (pos.x, pos.y),
-        (pos.x + sin(right_angle) * RENDER_DEPTH,
-         pos.y + cos(right_angle) * RENDER_DEPTH)
+        get_right_fov_extreme_point(g.player)
     )
 
     left_line = Line(
         (pos.x, pos.y),
-        (pos.x + sin(left_angle) * RENDER_DEPTH,
-         pos.y + cos(left_angle) * RENDER_DEPTH)
+        get_left_fov_extreme_point(g.player)
     )
 
     for wall in walls:
@@ -62,12 +57,17 @@ def build_z_buffer_walls(g):
         ri = line_intersection(right_line, wall)
         li = line_intersection(left_line, wall)
 
+        # Figure out how to order these dots
+
         if ri and li:
             z_buffer_walls.append(Wall(li, ri, pos))
             continue
 
         if ri:
-            p = wall.p2 if pv(wall.p2, g.player) else wall.p1
+            if pv(wall.p1, g.player):
+                p = wall.p1
+            else:
+                p = wall.p2
             z_buffer_walls.append(Wall(p, ri, pos))
             continue
 
@@ -114,11 +114,11 @@ def draw_walls(s, g, w):
     #         if not is_on_line(i.p1, left_line):
     #             t1 = left_angle
     #         else:
-    #             t1 = get_angle(pos, left_angle, i.p1)
+    #             t1 = get_angle(g.player, i.p1)
     #         if not is_on_line(i.p2, right_line):
     #             t2 = right_angle
     #         else:
-    #             t2 = get_angle(pos, left_angle, i.p2)
+    #             t2 = get_angle(g.player, i.p2)
     #         x1 = normalize(t1, left_angle, right_angle, 0, SCREEN_WIDTH)
     #         x2 = normalize(t2, left_angle, right_angle, 0, SCREEN_WIDTH)
     #         coordinates = (
@@ -162,33 +162,29 @@ def draw_minimap(s, g, w):
                   LEVEL_HEIGHT * LEVEL_CELL_SPACING))
 
     # Translate the current player's position to the mini map structure
-    player_pos = (int(SCREEN_WIDTH - (g.player.pos.x * LEVEL_CELL_SPACING)),
+    player_pos = (int(RENDER_MINI_MAP_OFFSET + (g.player.pos.x * LEVEL_CELL_SPACING)),
                   int(g.player.pos.y * LEVEL_CELL_SPACING))
 
     # Draw the player fov
-    player_right_aim = (player_pos[0] - 200 * sin(g.player.angle + g.player.fov / 2),
-                        player_pos[1] + 200 * cos(g.player.angle + g.player.fov / 2))
-    player_left_aim = (player_pos[0] - 200 * sin(g.player.angle - g.player.fov / 2),
-                       player_pos[1] + 200 * cos(g.player.angle - g.player.fov / 2))
-    pg.draw.line(s, pg.Color("Red"), player_pos, player_left_aim)
-    pg.draw.line(s, pg.Color("Red"), player_pos, player_right_aim)
+    ra = get_right_minimap_extreme(player_pos, g.player.angle, g.player.fov, 200)
+    la = get_left_minimap_extreme(player_pos, g.player.angle, g.player.fov, 200)
+    pg.draw.line(s, pg.Color("Blue"), player_pos, ra)
+    pg.draw.line(s, pg.Color("Blue"), player_pos, la)
 
     # Player
     pg.draw.circle(s, pg.Color("red"), player_pos, 1)
     for wall in g.level.walls:
-        start = (int(SCREEN_WIDTH - (wall.p1.x * LEVEL_CELL_SPACING)),
+        start = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                  int(wall.p1.y * LEVEL_CELL_SPACING))
-        end = (int(SCREEN_WIDTH - (wall.p2.x * LEVEL_CELL_SPACING)),
+        end = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
                int(wall.p2.y * LEVEL_CELL_SPACING))
         pg.draw.line(s, pg.Color("Green"), start, end)
     for wall in w:
         try:
-            ls = wall.p1
-            le = wall.p2
-            ls = (int(SCREEN_WIDTH - (ls.x * LEVEL_CELL_SPACING)),
-                  int(ls.y * LEVEL_CELL_SPACING))
-            le = (int(SCREEN_WIDTH - (le.x * LEVEL_CELL_SPACING)),
-                  int(le.y * LEVEL_CELL_SPACING))
+            ls = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
+                  int(wall.p1.y * LEVEL_CELL_SPACING))
+            le = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
+                  int(wall.p2.y * LEVEL_CELL_SPACING))
             pg.draw.line(s, pg.Color("Red"), ls, le)
         except IndexError:
             logger.log("index error")
@@ -268,31 +264,116 @@ def calc_floor(c):
 
 def point_in_view(p, c):
     """
+    # https://www.geeksforgeeks.org/check-whether-a-given-point-lies-inside-a-triangle-or-not/
+    # im a big ol 2 head
     Checks if point (p) is in character (c) vision
     :param p: Point object
     :param c: Character/Entity object with angle, fov, and pos values
     :return: True/False
     """
-    right_angle = (c.angle + c.fov / 2)
-    left_angle = (c.angle - c.fov / 2)
-    t = get_angle(c.pos, left_angle, p)
+    left_angle = get_left_fov_extreme_ang(c)
+    right_angle = get_right_fov_extreme_ang(c)
+    t = get_angle(c, p)
+    if p.x == 6 and p.y == 6:
+        logger.log("{:.2f} | {:.2f} | {:.2f}".format(left_angle, t, right_angle))
     if left_angle <= t <= right_angle:
         return True
     return False
 
 
-def get_angle(e, l, p):
+# Standardise angles for easy maths
+def get_right_fov_extreme_ang(c):
     """
+    :param c: Entity object
+    :return:
+    """
+    return c.angle + c.fov / 2
 
-    :param e: Entity we're measuring from
-    :param l: Left extreme of vision angle in Radians
-    :param p: Point we're getting the angle to
-    :return: Radians
+def get_left_fov_extreme_ang(c):
     """
-    a = np.array([e.x, e.y])
-    b = np.array([e.x + sin(l) * RENDER_DEPTH, e.y + cos(l) * RENDER_DEPTH])
-    c = np.array([p.x, p.y])
-    ba = a - b
-    bc = c - b
-    cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-    return np.arccos(cos_ang)
+    :param c: Entity object
+    :return:
+    """
+    return c.angle - c.fov / 2
+
+def get_right_fov_extreme_point(c, d=RENDER_DEPTH):
+    """
+    :param c: Entity object
+    :param d: distance to offset the point
+    :return: Point obj at the right extreme of the characters FOV
+    """
+    return Point(c.pos.x - d * sin(c.angle + c.fov / 2),
+                 c.pos.y + d * cos(c.angle + c.fov / 2))
+
+
+def get_left_fov_extreme_point(c, d=RENDER_DEPTH):
+    """
+    :param c: Entity object
+    :param d: distance to offset the point
+    :return: Point obj at the left extreme of the characters FOV
+    """
+    return Point(c.pos.x - d * sin(c.angle - c.fov / 2),
+                 c.pos.y + d * cos(c.angle - c.fov / 2))
+
+
+def get_right_minimap_extreme(p, a, f, d=200):
+    """
+    :param p: position Point obj
+    :param a: angle in radians
+    :param f: FOV angle in radians
+    :param d: distance to offset the point
+    :return: tuple (x, y) of the right FOV extreme
+    """
+    return int(p[0] - d * sin(a + f / 2)), int(p[1] + d * cos(a + f / 2))
+
+
+def get_left_minimap_extreme(p, a, f, d=200):
+    """
+    :param p: position Point obj
+    :param a: angle in radians
+    :param f: FOV angle in radians
+    :param d: distance to offset the point
+    :return: tuple (x, y) of the left FOV extreme
+    """
+    return int(p[0] - d * sin(a - f / 2)), int(p[1] + d * cos(a - f / 2))
+
+
+# def get_angle(e, la, p):
+#     """
+#
+#     :param e: entity pos
+#     :param la: left angle
+#     :param p: wall point
+#     :return: angle between la and p in radians
+#     """
+#     left_fov_vec = Point(cos(la), sin(la))
+#     view_to_point_vec = sub(p, e)
+#     return np.arccos(dot(left_fov_vec, view_to_point_vec) / (mag(left_fov_vec) * mag(view_to_point_vec)))
+
+# def get_angle(e, p):
+#     """
+#
+#     :param e: Entity we're measuring from
+#     :param l: Left extreme of vision angle in Radians
+#     :param p: Point we're getting the angle to
+#     :return: Radians
+#     """
+#     l = get_left_fov_extreme_point(e)
+#     a = np.array([e.pos.x, e.pos.y])
+#     b = np.array([l.x, l.y])
+#     c = np.array([p.x, p.y])
+#     ba = b - a
+#     bc = b - c
+#     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+#     return np.arccos(cos_ang)
+
+def get_angle(e, p):
+    y = p.y - e.pos.y
+    x = p.x - e.pos.x
+    return (normalize(atan2(y, x), -pi, pi, 0, 2 * pi) - pi / 2) % 2 * pi
+
+def get_angle2(e, p):
+    y = p.y - e.y
+    x = p.x - e.x
+    return (normalize(atan2(-y, x), -pi, pi, 0, 2 * pi) + pi / 2) % 2 * pi
+

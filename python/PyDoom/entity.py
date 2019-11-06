@@ -15,11 +15,12 @@ class Entity:
         """
         # This entity's position in X, Y
         self.pos = pos
-        # This entity's facing angle
-        self.angle = pi / 2
 
         # The players FOV
         self.fov = pi / 3
+
+        # Entities angle
+        self.__angle = 0
 
         # This entity's sprite (Image Utilities are not implemented yet)
         # self.sprite = iu.images[sprite]
@@ -39,6 +40,14 @@ class Entity:
 
         #
         self.health = 100
+
+    @property
+    def angle(self):
+        return self.__angle
+
+    @angle.setter
+    def angle(self, val):
+        self.__angle = val % (pi * 2)
 
     def update(self):
         if self.health < 0:
@@ -61,16 +70,16 @@ class Entity:
         "forwards, backwards, strafe left, strafe right"
         # This is really messy... How could I simplify this?
         if direction is 1:  # backwards
-            tmp_pos = (self.pos.x + (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
+            tmp_pos = (self.pos.x - (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
                        self.pos.y + (cos(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos.x = self.pos.x + (sin(self.angle) * self.move_speed * self.tick)
+                self.pos.x = self.pos.x - (sin(self.angle) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y + (cos(self.angle) * self.move_speed * self.tick)
         elif direction is 2:  # forwards
-            tmp_pos = (self.pos.x - (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
+            tmp_pos = (self.pos.x + (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
                        self.pos.y - (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos.x = self.pos.x - (sin(self.angle) * self.move_speed * self.tick)
+                self.pos.x = self.pos.x + (sin(self.angle) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y - (cos(self.angle) * self.move_speed * self.tick)
         elif direction is 3:  # Strafe left
             tmp_pos = (self.pos.x + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
