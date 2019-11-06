@@ -18,7 +18,7 @@ class Game(PyDoom):
         # start = timer()
         draw(self, surface)
         fps = "fps : {:.2f}".format(clock.get_fps())
-        # logger.on_screen_log(fps, surface)
+        logger.on_screen_log(fps, surface)
 
     def update(self):
         super().update()

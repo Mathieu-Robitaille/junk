@@ -271,14 +271,36 @@ def point_in_view(p, c):
     :param c: Character/Entity object with angle, fov, and pos values
     :return: True/False
     """
-    left_angle = get_left_fov_extreme_ang(c)
-    right_angle = get_right_fov_extreme_ang(c)
-    t = get_angle(c, p)
-    if p.x == 6 and p.y == 6:
-        logger.log("{:.2f} | {:.2f} | {:.2f}".format(left_angle, t, right_angle))
-    if left_angle <= t <= right_angle:
+    l = get_left_fov_extreme_point(c)
+    r = get_right_fov_extreme_point(c)
+    if is_inside(c.pos, l, r, p):
         return True
-    return False
+    else:
+        return False
+
+
+def is_inside(a, b, c, p):
+    def area(x1, y1, x2, y2, x3, y3):
+        return abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0)
+    # Calculate area of triangle ABC
+    abc = area(a.x, a.y, b.x, b.y, c.x, c.y)
+
+    # Calculate area of triangle PBC
+    pbc = area(p.x, p.y, b.x, b.y, c.x, c.y)
+
+    # Calculate area of triangle PAC
+    pac = area(a.x, a.y, p.x, p.y, c.x, c.y)
+
+    # Calculate area of triangle PAB
+    pab = area(a.x, a.y, b.x, b.y, p.x, p.y)
+
+    # Check if sum of pbc, pbc and pab
+    # is same as A
+    r = pbc + pac + pab
+    if r - 0.5 <= abc <= r + 0.5:
+        return True
+    else:
+        return False
 
 
 # Standardise angles for easy maths
@@ -289,12 +311,14 @@ def get_right_fov_extreme_ang(c):
     """
     return c.angle + c.fov / 2
 
+
 def get_left_fov_extreme_ang(c):
     """
     :param c: Entity object
     :return:
     """
     return c.angle - c.fov / 2
+
 
 def get_right_fov_extreme_point(c, d=RENDER_DEPTH):
     """
@@ -338,47 +362,31 @@ def get_left_minimap_extreme(p, a, f, d=200):
     return int(p[0] - d * sin(a - f / 2)), int(p[1] + d * cos(a - f / 2))
 
 
-# def get_angle(e, la, p):
-#     """
-#
-#     :param e: entity pos
-#     :param la: left angle
-#     :param p: wall point
-#     :return: angle between la and p in radians
-#     """
-#     left_fov_vec = Point(cos(la), sin(la))
-#     view_to_point_vec = sub(p, e)
-#     return np.arccos(dot(left_fov_vec, view_to_point_vec) / (mag(left_fov_vec) * mag(view_to_point_vec)))
+def get_angle(e, f, p):
+    """
+    :param e: Entity we're measuring from
+    :param f: Fov arm endpoint
+    :param p: Point we're getting the angle to
+    :return: Radians
+    """
+    a = np.array([e.pos.x, e.pos.y])
+    b = np.array([f.x, f.y])
+    c = np.array([p.x, p.y])
+    ba = b - a
+    bc = b - c
+    cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
+    return np.arccos(cos_ang) * 10
 
-# def get_angle(e, p):
-#     """
-#
-#     :param e: Entity we're measuring from
-#     :param l: Left extreme of vision angle in Radians
-#     :param p: Point we're getting the angle to
-#     :return: Radians
-#     """
-#     l = get_left_fov_extreme_point(e)
-#     a = np.array([e.pos.x, e.pos.y])
-#     b = np.array([l.x, l.y])
-#     c = np.array([p.x, p.y])
-#     ba = b - a
-#     bc = b - c
-#     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-#     return np.arccos(cos_ang)
+
 
 """
 https://gamedev.stackexchange.com/questions/176898/find-angle-to-a-point
 how make work......
 """
+#
+# def get_angle(e, p):
+#     y = p.y - e.pos.y
+#     x = p.x - e.pos.x
+#     return (normalize(atan2(y, x), -pi, pi, 0, 2 * pi) - pi / 2) % 2 * pi
 
-def get_angle(e, p):
-    y = p.y - e.pos.y
-    x = p.x - e.pos.x
-    return (normalize(atan2(y, x), -pi, pi, 0, 2 * pi) - pi / 2) % 2 * pi
-
-def get_angle2(e, p):
-    y = p.y - e.y
-    x = p.x - e.x
-    return (normalize(atan2(-y, x), -pi, pi, 0, 2 * pi) + pi / 2) % 2 * pi
 
