@@ -55,6 +55,7 @@ MENU_SPACING = 40
 # Render constants
 #
 RENDER_DEPTH = 30
+RENDER_WALL_SIZE = 2.5
 # This is the divisor for ray casting, a larger number means more deg between rays
 
 
@@ -128,15 +129,11 @@ def distance_to_point(a, b):
     :return: float: distance between a and b
     """
     if isinstance(a, Point) and isinstance(b, Point):
-        r = sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
-        return r
+        return sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
     return sqrt((b[0] - a[0]) ** 2 + (b[1] - a[1]) ** 2)
 
 
-
 def normalize(val, old_min, old_max, new_min, new_max):
-    if val == 0:
-        return 0
     old_range = old_max - old_min
     new_range = new_max - new_min
     return ((val - old_min) * new_range) / old_range + new_min
@@ -179,15 +176,17 @@ class Wall:
         self.p1_d = distance_to_point(player_pos, p1)
         self.p2_d = distance_to_point(player_pos, p2)
         self.n_d = abs(self.p1_d - self.p2_d)
-        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p1_d
-        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p1_d
+        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
+                          (self.p1_d if self.p1_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
+        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
+                          (self.p2_d if self.p2_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
         self.floor_p1 = SCREEN_HEIGHT - self.ceiling_p1
         self.floor_p2 = SCREEN_HEIGHT - self.ceiling_p2
         self.color_p1 = 255 - normalize(distance_to_point(p1, player_pos), 0, RENDER_DEPTH, 0, 255)
         self.color_p2 = 255 - normalize(distance_to_point(p2, player_pos), 0, RENDER_DEPTH, 0, 255)
 
     def __str__(self):
-        return str(self.n_d)
+        return str("{} {}".format(self.p1, self.p2))
 
     def __lt__(self, other):
         if isinstance(other, Wall):

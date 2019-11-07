@@ -95,43 +95,30 @@ def draw_walls(s, g, w):
     pg.draw.rect(s, (0, 64, 0),
                  (0, SCREEN_HEIGHT / 2, SCREEN_WIDTH, SCREEN_HEIGHT / 2))
 
+    c = g.player
     pos = g.player.pos
 
-    left_angle = (g.player.angle - g.player.fov / 2)
-    right_angle = (g.player.angle + g.player.fov / 2)
+    left_point = get_left_fov_extreme_point(c)
+    right_point = get_right_fov_extreme_point(c)
+    left_line = Line(pos, left_point)
+    right_line = Line(pos, right_point)
 
-    # for i in w:
-    #     try:
-    #         right_line = Line((pos.x, pos.y),
-    #                           (pos.x + sin(right_angle) * RENDER_DEPTH,
-    #                            pos.y + cos(right_angle) * RENDER_DEPTH))
-    #
-    #         left_line = Line((pos.x, pos.y),
-    #                          (pos.x + sin(left_angle) * RENDER_DEPTH,
-    #                           pos.y + cos(left_angle) * RENDER_DEPTH))
-    #
-    #         if not is_on_line(i.p1, left_line):
-    #             t1 = left_angle
-    #         else:
-    #             t1 = get_angle(g.player, i.p1)
-    #         if not is_on_line(i.p2, right_line):
-    #             t2 = right_angle
-    #         else:
-    #             t2 = get_angle(g.player, i.p2)
-    #         x1 = normalize(t1, left_angle, right_angle, 0, SCREEN_WIDTH)
-    #         x2 = normalize(t2, left_angle, right_angle, 0, SCREEN_WIDTH)
-    #         coordinates = (
-    #             (x1, i.ceiling_p1),
-    #             (x2, i.ceiling_p2),
-    #             (x2, i.floor_p2),
-    #             (x1, i.floor_p1)
-    #         )
-    #         color = (i.color_p1, i.color_p1, i.color_p1)
-    #         pg.draw.polygon(s, color, coordinates, 0)
-    #     except IndexError as e:  # e here incase I want to use it later,
-    #         logger.log("you done it now boy")
-    #     except TypeError:
-    #         logger.log("points err", coordinates)
+    for i in w:
+        try:
+            x1 = get_x_coordinate(c, i.p1, left_line, right_line)
+            x2 = get_x_coordinate(c, i.p2, left_line, right_line)
+            coordinates = (
+                (x2, i.ceiling_p2),
+                (x1, i.ceiling_p1),
+                (x1, i.floor_p1),
+                (x2, i.floor_p2)
+            )
+            color = (i.color_p1, i.color_p1, i.color_p1)
+            pg.draw.polygon(s, color, coordinates, 0)
+        except IndexError as e:  # e here incase I want to use it later,
+            logger.log("you done it now boy")
+        except TypeError:
+            logger.log("points err", coordinates)
 
 
 def draw_sprites(s, c):
@@ -196,6 +183,26 @@ Below are the supporting functions
 These all need error checking, type checking, and comments
 """
 
+
+def get_x_coordinate(c, p, l, r):
+    """
+
+    :param c: Current player, camera
+    :param p: Point we're evaluating
+    :param l: Current player's left fov max (Line)
+    :param r: Current player's right fov max (Line)
+    :return: x coordinate normalised for the screen
+    """
+    if is_on_line(p, l):
+        return 0
+    elif is_on_line(p, r):
+        return SCREEN_WIDTH
+    else:
+        ang = get_angle(c, l.p2, p)
+        return normalize(ang,
+                         0, pi / 2.4,
+                         0, SCREEN_WIDTH)
+
 def is_on_line(p, l):
     """
     Checks if a point is on a line
@@ -204,7 +211,10 @@ def is_on_line(p, l):
     :return: bool, True if the point is on the line, else false
     """
     d = distance_to_point
-    if d(p, l.p1) + d(p, l.p2) == d(l.p1, l.p2):
+    d1 = d(p, l.p1) + d(p, l.p2)
+    d2 = d(l.p1, l.p2)
+    # Pad it because floating point accuracy
+    if d1 - 0.0003 <= d2 <= d1 + 0.0003:
         return True
     return False
 

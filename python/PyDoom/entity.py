@@ -17,10 +17,10 @@ class Entity:
         self.pos = pos
 
         # The players FOV
-        self.fov = pi / 3
+        self.fov = pi / 4
 
         # Entities angle
-        self.__angle = 0
+        self.__angle = 5.533185307
 
         # This entity's sprite (Image Utilities are not implemented yet)
         # self.sprite = iu.images[sprite]
@@ -83,17 +83,17 @@ class Entity:
                 self.pos.x = self.pos.x + (sin(self.angle) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y - (cos(self.angle) * self.move_speed * self.tick)
         elif direction is 3:  # Strafe left
-            tmp_pos = (self.pos.x + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos.y + (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
-            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
-                self.pos.x = self.pos.x + (sin(self.angle - pi / 2) * self.move_speed * self.tick)
-                self.pos.y = self.pos.y + (cos(self.angle - pi / 2) * self.move_speed * self.tick)
-        elif direction is 4:  # Strafe right
             tmp_pos = (self.pos.x - (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
-                       self.pos.y - (cos(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
+                       self.pos.y - (cos(self.angle + pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos.x = self.pos.x - (sin(self.angle - pi / 2) * self.move_speed * self.tick)
-                self.pos.y = self.pos.y - (cos(self.angle - pi / 2) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y - (cos(self.angle + pi / 2) * self.move_speed * self.tick)
+        elif direction is 4:  # Strafe right
+            tmp_pos = (self.pos.x + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
+                       self.pos.y + (cos(self.angle + pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
+            if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
+                self.pos.x = self.pos.x + (sin(self.angle - pi / 2) * self.move_speed * self.tick)
+                self.pos.y = self.pos.y + (cos(self.angle + pi / 2) * self.move_speed * self.tick)
 
 
 class Enemy(Entity):
@@ -139,11 +139,11 @@ class Player(Entity):
         if self.wasdqe_held[0]:  # W
             self.move_check(1)
         if self.wasdqe_held[1]:  # A
-            self.angle -= 1.0 * self.tick
+            self.angle -= 0.75 * self.tick
         if self.wasdqe_held[2]:  # S
             self.move_check(2)
         if self.wasdqe_held[3]:  # D
-            self.angle += 1.0 * self.tick
+            self.angle += 0.75 * self.tick
         if self.wasdqe_held[4]:  # Q
             self.move_check(3)
         if self.wasdqe_held[5]:  # E
