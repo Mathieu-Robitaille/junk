@@ -186,7 +186,7 @@ These all need error checking, type checking, and comments
 
 def get_x_coordinate(c, p, l, r):
     """
-
+    This is really bad and needs to get re-worked
     :param c: Current player, camera
     :param p: Point we're evaluating
     :param l: Current player's left fov max (Line)
