@@ -49,7 +49,8 @@ class Entity:
     def angle(self, val):
         self.__angle = val % (pi * 2)
 
-    def update(self):
+    def update(self, frame_time):
+        self.tick = frame_time
         if self.health < 0:
             self.dead = True
         self.move()
@@ -63,8 +64,8 @@ class Entity:
     def move(self):
         pass
 
-    def event(self, event, timer):
-        self.tick = timer
+    def event(self, event):
+        pass
 
     def move_check(self, direction):
         "forwards, backwards, strafe left, strafe right"
@@ -100,8 +101,8 @@ class Enemy(Entity):
         super().__init__(pos=Point(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
 
-    def update(self):
-        super().update()
+    def update(self, frame_time):
+        super().update(frame_time)
         self.move()
 
     def do_damage(self, target, damage_type, amount):
@@ -123,8 +124,8 @@ class Player(Entity):
         # List for W, A, S, D, Q, E (Q, E used for strafing)
         self.wasdqe_held = [False, False, False, False, False, False]
 
-    def update(self):
-        super().update()
+    def update(self, frame_time):
+        super().update(frame_time)
 
     def do_damage(self, target, damagetype, amount):
         super().do_damage(target, damagetype, amount)
@@ -148,8 +149,8 @@ class Player(Entity):
         if self.wasdqe_held[5]:  # E
             self.move_check(4)
 
-    def event(self, event, timer):
-        super().event(event, timer)
+    def event(self, event):
+        super().event(event)
         if event.type in (pg.KEYDOWN, pg.KEYUP):
             if event.key == pg.K_w:
                 self.wasdqe_held[0] = not self.wasdqe_held[0]

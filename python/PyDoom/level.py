@@ -190,5 +190,5 @@ class Level:
         for cell in self.map:
             carry_or_create_wall(cell, self)
 
-    def update(self):
+    def update(self, frame_time):
         pass

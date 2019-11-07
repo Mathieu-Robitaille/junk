@@ -13,20 +13,18 @@ class Game(PyDoom):
         self.level = Level()
         self.player = Player(self)
 
-    def draw(self, surface, clock=None):
+    def draw(self, surface):
         # Hand off the render responsibilities to the render manager
         # start = timer()
         draw(self, surface)
-        fps = "fps : {:.2f}".format(clock.get_fps())
-        logger.on_screen_log(fps, surface)
 
-    def update(self):
-        super().update()
+    def update(self, frame_time):
+        super().update(frame_time)
 
         # Globalupdate order should be Level, entities
-        self.level.update()
-        self.player.update()
+        self.level.update(frame_time)
+        self.player.update(frame_time)
 
-    def event(self, event, event_timer):
-        super().event(event, event_timer)
-        self.player.event(event, event_timer)
+    def event(self, event):
+        super().event(event)
+        self.player.event(event)

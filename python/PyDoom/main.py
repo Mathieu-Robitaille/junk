@@ -43,7 +43,9 @@ class Doom(PyDoom):
         super().draw(surface)
         self.surface.fill(pg.Color("black"))
         # Draw the active screen
-        self.screens[self.active].draw(surface, self.clock)
+        self.screens[self.active].draw(surface)
+        fps = "fps : {:.2f}".format(self.clock.get_fps())
+        logger.on_screen_log(fps, surface)
         pg.display.update()
 
     def run(self):
@@ -52,16 +54,16 @@ class Doom(PyDoom):
             self.frame_time = self.clock.get_time() / 1000
             super().run()
             for event in pg.event.get():
-                self.event(event, self.frame_time)
+                self.event(event)
             # Update the currently active screen
-            self.update()
+            self.update(self.frame_time)
             self.draw(self.surface)
 
-    def update(self):
-        super().update()
-        self.screens[self.active].update()
+    def update(self, frame_time):
+        super().update(self.frame_time)
+        self.screens[self.active].update(self.frame_time)
 
-    def event(self, event, timer):
+    def event(self, event):
         if event.type == pg.QUIT:
             sys.exit()
         if event.type == pg.KEYDOWN:
@@ -70,9 +72,9 @@ class Doom(PyDoom):
             if event.key == pg.K_ESCAPE:
                 sys.exit()
         if self.active in (SCREEN_MENU, SCREEN_OPTIONS):
-            self.screens[self.active].event(event, timer, pydoomobj=self)
+            self.screens[self.active].event(event, pydoomobj=self)
         else:
-            self.screens[self.active].event(event, timer)
+            self.screens[self.active].event(event)
 
     def change_to_menu(self):
         self.active = SCREEN_MENU

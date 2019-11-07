@@ -2,16 +2,16 @@ class PyDoom:
     def __init__(self):
         pass
 
-    def draw(self, surface, clock=None):
+    def draw(self, surface):
         pass
 
     def run(self):
         pass
 
-    def update(self):
+    def update(self, frame_time):
         pass
 
-    def event(self, event, event_timer, pydoomobj=None):
+    def event(self, event, pydoomobj=None):
         """
 
         :param event:

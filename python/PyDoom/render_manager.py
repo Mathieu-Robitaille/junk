@@ -37,8 +37,6 @@ def build_z_buffer_walls(g):
     z_buffer_walls = []
 
     pos = g.player.pos
-    player_angle = g.player.angle
-    player_fov = g.player.fov
 
     walls = g.level.walls[1:]
 

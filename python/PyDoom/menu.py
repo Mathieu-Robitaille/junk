@@ -32,7 +32,7 @@ class Menu(PyDoom):
         if 0 <= self.active + move <= len(self.options) - 1:
             self.active += move
 
-    def event(self, event, event_timer, pydoomobj=None):
+    def event(self, event, pydoomobj=None):
         if event.type == pg.KEYDOWN:
             if event.key in (pg.K_w, pg.K_UP):
                 self.change_active(-1)
