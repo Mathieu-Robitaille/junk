@@ -157,14 +157,9 @@ def draw_minimap(s, g, w):
     pg.draw.line(s, pg.Color("Blue"), player_pos, ra)
     pg.draw.line(s, pg.Color("Blue"), player_pos, la)
 
-    ss = (int(RENDER_MINI_MAP_OFFSET + (10 * LEVEL_CELL_SPACING)),
-          int(10 * LEVEL_CELL_SPACING))
-
     # Player
     pg.draw.circle(s, pg.Color("red"), player_pos, 1)
-    pg.draw.circle(s, pg.Color("white"), ss, 1)
-    la = get_angle(g.player, get_left_fov_extreme_point(g.player), Point(10, 10))
-    logger.log(la / distance_to_point(Point(10, 10), g.player.pos))
+
     for wall in g.level.walls:
         start = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                  int(wall.p1.y * LEVEL_CELL_SPACING))
