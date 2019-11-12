@@ -1,7 +1,7 @@
 import pygame as pg
 import logger
 from timeit import default_timer as timer
-from entity import Player
+from entity import Player, Enemy
 from level import Level
 from pydoom import PyDoom
 from render_manager import draw
@@ -12,6 +12,7 @@ class Game(PyDoom):
         super().__init__()
         self.level = Level()
         self.player = Player(self)
+        self.enemies = [Enemy(self)]
 
     def draw(self, surface):
         # Hand off the render responsibilities to the render manager

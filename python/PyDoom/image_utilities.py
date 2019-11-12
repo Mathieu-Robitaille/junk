@@ -14,6 +14,8 @@ IMAGE_LIBRARY = {}
 #   - load all assets at the begining of the game (standard loading screen)
 #   - load all assets at the start of a level (more akin to a 3D game load)
 #   - load assets as they are needed
+
+
 def load_images():
     for file in listdir(IU_ASSET_DIR):
         asset = join(IU_ASSET_DIR, file)
@@ -26,6 +28,8 @@ def load_images():
 
 
 def get_image(image_name):
+    if image_name is None:
+        return None
     if image_name not in IMAGE_LIBRARY.keys():
         try:
             IMAGE_LIBRARY[image_name] = pg.image.load(join(IU_ASSET_DIR, image_name))

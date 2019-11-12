@@ -2,6 +2,7 @@ import pygame as pg
 
 from math import pi, cos, sin
 from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point
+from image_utilities import get_image
 
 
 class Entity:
@@ -20,10 +21,11 @@ class Entity:
         self.fov = pi / 4
 
         # Entities angle
-        self.__angle = 5.533185307
+        self.__angle = 0
 
         # This entity's sprite (Image Utilities are not implemented yet)
-        # self.sprite = iu.images[sprite]
+        self.sprite = get_image(sprite)
+
         self.team = team
 
         # local variable for time between things
@@ -98,7 +100,7 @@ class Entity:
 
 class Enemy(Entity):
     def __init__(self, game):
-        super().__init__(pos=Point(10.0, 10.0), sprite=None, team=TEAM_ENEMY, game=game)
+        super().__init__(pos=Point(10.0, 10.0), sprite="brainboi1-1.png", team=TEAM_ENEMY, game=game)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
 
     def update(self, frame_time):
