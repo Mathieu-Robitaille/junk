@@ -157,8 +157,14 @@ def draw_minimap(s, g, w):
     pg.draw.line(s, pg.Color("Blue"), player_pos, ra)
     pg.draw.line(s, pg.Color("Blue"), player_pos, la)
 
+    ss = (int(RENDER_MINI_MAP_OFFSET + (10 * LEVEL_CELL_SPACING)),
+          int(10 * LEVEL_CELL_SPACING))
+
     # Player
     pg.draw.circle(s, pg.Color("red"), player_pos, 1)
+    pg.draw.circle(s, pg.Color("white"), ss, 1)
+    la = get_angle(g.player, get_left_fov_extreme_point(g.player), Point(10, 10))
+    logger.log(la / distance_to_point(Point(10, 10), g.player.pos))
     for wall in g.level.walls:
         start = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                  int(wall.p1.y * LEVEL_CELL_SPACING))
@@ -184,26 +190,48 @@ These all need error checking, type checking, and comments
 """
 
 
-def get_x_coordinate(c, p, l, r):
+def get_x_coordinate(entity, point, l, r):
     """
     This is really bad and needs to get re-worked
-    :param c: Current player, camera
-    :param p: Point we're evaluating
+    :param entity: Current player, camera
+    :param point: Point we're evaluating
     :param l: Current player's left fov max (Line)
     :param r: Current player's right fov max (Line)
     :return: x coordinate normalised for the screen
     """
-    if is_on_line(p, l):
+    if fuzzy_is_on_line(point, l):
         return 0
-    elif is_on_line(p, r):
+    elif fuzzy_is_on_line(point, r):
         return SCREEN_WIDTH
     else:
-        ang = get_angle(c, l.p2, p)
+        ang = get_angle(entity, l.p2, point)
+        ang2 = get_angle(entity, r.p2, point)
+        # get_angle returns a different value at different distances.
+        # I'm not sure how to solve this issue without the current get _angle code
+        # so a quick patch that works is to get the angle from both sides of the fov
+        # and add them together since this will always be the maximum for that distance
         return normalize(ang,
-                         0, pi / 2.4,
+                         0, ang + ang2,
                          0, SCREEN_WIDTH)
 
+
+
 def is_on_line(p, l):
+    """
+    Checks if a point is on a line
+    :param p: Point to check of type Point
+    :param l: Line to be evaluated of type Line
+    :return: bool, True if the point is on the line, else false
+    """
+    d = distance_to_point
+    d1 = d(p, l.p1) + d(p, l.p2)
+    d2 = d(l.p1, l.p2)
+    if d1 == d2:
+        return True
+    return False
+
+
+def fuzzy_is_on_line(p, l):
     """
     Checks if a point is on a line
     :param p: Point to check of type Point
@@ -363,16 +391,16 @@ def get_left_minimap_extreme(p, a, f, d=200):
     return int(p[0] - d * sin(a - f / 2)), int(p[1] + d * cos(a - f / 2))
 
 
-def get_angle(e, f, p):
+def get_angle(entity, fov_enpoint, point):
     """
-    :param e: Entity we're measuring from
-    :param f: Fov arm endpoint
-    :param p: Point we're getting the angle to
+    :param entity: Entity we're measuring from
+    :param fov_enpoint: Fov arm endpoint
+    :param point: Point we're getting the angle to
     :return: Radians
     """
-    a = np.array([e.pos.x, e.pos.y])
-    b = np.array([f.x, f.y])
-    c = np.array([p.x, p.y])
+    a = np.array([entity.pos.x, entity.pos.y])
+    b = np.array([fov_enpoint.x, fov_enpoint.y])
+    c = np.array([point.x, point.y])
     ba = b - a
     bc = b - c
     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
