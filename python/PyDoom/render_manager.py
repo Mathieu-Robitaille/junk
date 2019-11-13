@@ -50,6 +50,7 @@ def build_z_buffer_walls(g):
         get_left_fov_extreme_point(g.player)
     )
 
+    # If Render distance is exceeded there is a bug where it creates a wall when it should not
     for wall in walls:
         # Condense code a bit, if statements were getting long
         pv = point_in_view

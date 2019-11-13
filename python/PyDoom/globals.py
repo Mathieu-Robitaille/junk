@@ -175,7 +175,7 @@ class Wall:
         self.p2 = p2
         self.p1_d = distance_to_point(player_pos, p1)
         self.p2_d = distance_to_point(player_pos, p2)
-        self.n_d = abs(self.p1_d - self.p2_d)
+        self.n_d = distance_to_point(player_pos, Point((p2.x + p1.x) / 2, (p2.y + p1.y) / 2))
         self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
                           (self.p1_d if self.p1_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
         self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
@@ -186,7 +186,8 @@ class Wall:
         self.color_p2 = 255 - normalize(distance_to_point(p2, player_pos), 0, RENDER_DEPTH, 0, 255)
 
     def __str__(self):
-        return str("{} {}".format(self.p1, self.p2))
+        # return str("{} {}".format(self.p1, self.p2))
+        return str(self.n_d)
 
     def __lt__(self, other):
         if isinstance(other, Wall):

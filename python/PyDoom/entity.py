@@ -141,11 +141,11 @@ class Player(Entity):
         if self.wasdqe_held[0]:  # W
             self.move_check(1)
         if self.wasdqe_held[1]:  # A
-            self.angle -= 0.5 * self.tick
+            self.angle -= 0.75 * self.tick
         if self.wasdqe_held[2]:  # S
             self.move_check(2)
         if self.wasdqe_held[3]:  # D
-            self.angle += 0.5 * self.tick
+            self.angle += 0.75 * self.tick
         if self.wasdqe_held[4]:  # Q
             self.move_check(3)
         if self.wasdqe_held[5]:  # E
