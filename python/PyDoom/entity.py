@@ -100,7 +100,7 @@ class Entity:
 
 class Enemy(Entity):
     def __init__(self, game):
-        super().__init__(pos=Point(10.0, 10.0), sprite="brainboi1-1.png", team=TEAM_ENEMY, game=game)
+        super().__init__(pos=Point(13.0, 13.0), sprite="brainboi1-1.png", team=TEAM_ENEMY, game=game)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
 
     def update(self, frame_time):

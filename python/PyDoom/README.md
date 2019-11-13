@@ -3,6 +3,10 @@ DOOM comes to python!
 
 This is my implementation of Doom in python.
 
+I've tried to cram as much info into my commits as possible while also keeping them short
+Normally a ticket would get filled with information detailing each commit, but building an externally
+viewable system for one project would be cumbersome
+
 Future TODOs will reside here if they're more than a 5 minute fix
 General game plan will reside here as well.
 

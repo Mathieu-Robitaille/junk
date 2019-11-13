@@ -28,7 +28,7 @@ def draw(g, s):
     walls = build_z_buffer_walls(g)
     walls.sort(key=lambda Wall: Wall.n_d, reverse=True)
     draw_walls(s, g, walls)
-    draw_sprites(s, g)
+    draw_sprites(s, g, walls)
     draw_minimap(s, g, walls)
 
 
@@ -122,7 +122,7 @@ def draw_walls(s, g, w):
             logger.log("points err", coordinates)
 
 
-def draw_sprites(surface, game):
+def draw_sprites(surface, game, walls):
     """
     For sprite drawing we'll need to build a "Z buffer" ordered by distance to the player, drawing each item in the list
     in reverse order (farthest thing first, closest thing last)
@@ -131,10 +131,12 @@ def draw_sprites(surface, game):
     :return: nothing
     """
     for sprite in game.enemies:
-        if is_inside(game.player.pos,
+        a = is_inside(game.player.pos,
                      get_left_fov_extreme_point(game.player),
                      get_right_fov_extreme_point(game.player),
-                     sprite.pos):
+                     sprite.pos)
+        b = check_viewable(game, sprite, walls)
+        if a and b:
             sx = int(sprite.sprite.get_width() * (1 / distance_to_point(game.player.pos, sprite.pos)))
             sy = int(sprite.sprite.get_height() * (1 / distance_to_point(game.player.pos, sprite.pos)))
             scaled = pg.transform.scale(sprite.sprite, (sx, sy))
@@ -194,6 +196,13 @@ def draw_minimap(s, g, w):
 Below are the supporting functions 
 These all need error checking, type checking, and comments
 """
+
+
+def check_viewable(game, sprite, walls):
+    for w in walls:
+        if line_intersection(Line(game.player.pos, sprite.pos), Line(w.p1, w.p2)):
+            return False
+    return True
 
 
 def get_sprite_coords(sprite, player):
