@@ -20,8 +20,6 @@ class Entity:
         # The players FOV
         self.fov = pi / 4
 
-        # Entities angle
-        self.__angle = 0
 
         # This entity's sprite (Image Utilities are not implemented yet)
         self.sprite = get_image(sprite)
@@ -33,6 +31,8 @@ class Entity:
 
         self.dead = False
 
+        self.max_health = 100
+
         self.game = game
 
         # Used in move check by adding a bit and ensuring that value does not intersect with a wall
@@ -41,7 +41,13 @@ class Entity:
         self.move_buffer = 1.5
 
         #
-        self.health = 100
+        # Properties
+        #
+        # Entities angle
+        self.__angle = 0
+
+        #
+        self.__health = self.max_health
 
     @property
     def angle(self):
@@ -51,17 +57,39 @@ class Entity:
     def angle(self, val):
         self.__angle = val % (pi * 2)
 
+    @property
+    def health(self):
+        return self.__health
+
+    @health.setter
+    def health(self, val):
+        if self.__health + val <= 0:
+            self.die()
+        elif self.__health + val > self.max_health:
+            self.__health = self.max_health
+        else:
+            self.__health += val
+
     def update(self, frame_time):
         self.tick = frame_time
         if self.health < 0:
             self.dead = True
         self.move()
 
+    def die(self):
+        self.dead = True
+
+    # We can figure out resistances and what not later on if i want
+    # For right now lets just get a rough idea working then flesh it out later
     def do_damage(self, target, damagetype, amount):
-        pass
+        if isinstance(target, Entity):
+            target.take_damage(amount)
 
     def take_damage(self, amount):
-        pass
+        self.health += -amount
+
+    def heal(self, amount):
+        self.health += amount
 
     def move(self):
         pass
@@ -102,6 +130,7 @@ class Enemy(Entity):
     def __init__(self, game):
         super().__init__(pos=Point(13.0, 13.0), sprite="brainboi1-1.png", team=TEAM_ENEMY, game=game)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
+        self.angle = pi
 
     def update(self, frame_time):
         super().update(frame_time)

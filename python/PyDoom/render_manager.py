@@ -190,6 +190,14 @@ def draw_minimap(s, g, w):
             logger.log("index error")
         except TypeError as e:
             logger.log("Type error")
+    for sprite in g.enemies:
+        pos = (int(RENDER_MINI_MAP_OFFSET + (sprite.pos.x * LEVEL_CELL_SPACING)),
+               int(sprite.pos.y * LEVEL_CELL_SPACING))
+        ra = get_right_minimap_extreme(pos, sprite.angle, sprite.fov, 20)
+        la = get_left_minimap_extreme(pos, sprite.angle, sprite.fov, 20)
+        pg.draw.line(s, pg.Color("Blue"), pos, ra)
+        pg.draw.line(s, pg.Color("Blue"), pos, la)
+        pg.draw.circle(s, pg.Color("red"), pos, 1)
 
 
 """

@@ -25,7 +25,9 @@ def get_map(width, height):
            "###############"
 
 def get_map2(width, height):
-    # Return default test value
+    #
+    # Figure out how to override global's LEVEL_WIDTH
+    #
     return "##############################" \
            "#                            #" \
            "#                            #" \
@@ -186,7 +188,7 @@ class Level:
 
         # Walls are stored as a Line obj with the index being the id of the wall
         self.walls = [Line((0, 0), (0, 0))]
-        self.map = create_cells(get_map2(self.width, self.height))
+        self.map = create_cells(get_map(self.width, self.height))
         for cell in self.map:
             carry_or_create_wall(cell, self)
 
