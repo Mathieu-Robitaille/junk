@@ -7,6 +7,12 @@ I've tried to cram as much info into my commits as possible while also keeping t
 Normally a ticket would get filled with information detailing each commit, but building an externally
 viewable system for one project would be cumbersome
 
+Code is being commented as it becomes more permanent.
+I've recently finished the render manager, There are a ton of helper functions that need to be
+refactored and commented in that file to allow it to be actually human readable.
+
+
+
 Future TODOs will reside here if they're more than a 5 minute fix
 General game plan will reside here as well.
 

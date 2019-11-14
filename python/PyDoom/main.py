@@ -18,6 +18,7 @@ class Doom(PyDoom):
         if pg.font:
             pg.font.init()
 
+        # I want to init PyGame and its submodules before i call the base PyDoom object's methods
         super().__init__()
 
 
@@ -40,15 +41,22 @@ class Doom(PyDoom):
         self.active = SCREEN_MENU
 
     def draw(self, surface):
-        super().draw(surface)
+        # Set the backdrop for any rendering
         self.surface.fill(pg.Color("black"))
+        # Allow the superclass to do what it needs to
+        super().draw(surface)
         # Draw the active screen
         self.screens[self.active].draw(surface)
-        fps = "fps : {:.2f}".format(self.clock.get_fps())
-        logger.on_screen_log(fps, surface)
+        # Only draw the current fps if we're playing, otherwise the info is almost useless.
+        if self.active == SCREEN_GAME:
+            fps = "fps : {:.2f}".format(self.clock.get_fps())
+            logger.on_screen_log(fps, surface)
         pg.display.update()
 
     def run(self):
+        # This is the main loop, where all the magic happens
+        # Modularise as much of the code as possible allowing everything to EVENTUALLY be tucked away neatly into
+        # its own little function
         while True:
             self.clock.tick()
             self.frame_time = self.clock.get_time() / 1000
@@ -64,18 +72,26 @@ class Doom(PyDoom):
         self.screens[self.active].update(self.frame_time)
 
     def event(self, event):
+        # If i tell pygame to close for whatever reason, this is for that
         if event.type == pg.QUIT:
             sys.exit()
+        # Kill the game if esc is pressed at anytime, eventually when saving is implemented
+        # I'll interrupt this with a prompt of sorts. This allows for quick closing in the meantime
         if event.type == pg.KEYDOWN:
-            if event.key == pg.K_1:
-                self.change_to_menu()
             if event.key == pg.K_ESCAPE:
                 sys.exit()
+            # Debugging button to allow going between menus for now
+            if event.key == pg.K_1:
+                self.change_to_menu()
         if self.active in (SCREEN_MENU, SCREEN_OPTIONS):
+            # I reaaaaaaaly dont like passing this third arg to events for this one thing
+            # I need to fix this
             self.screens[self.active].event(event, pydoomobj=self)
         else:
             self.screens[self.active].event(event)
 
+    # Simple helper functions to switch screen allowing me to build my code in a way that this can change later
+    # with no issues to other code
     def change_to_menu(self):
         self.active = SCREEN_MENU
 
@@ -86,6 +102,7 @@ class Doom(PyDoom):
         self.active = SCREEN_GAME
 
 
+# Two abstraction blocks in the event I want to change how the game starts (Load all images first?)
 def main():
     Doom().run()
 
