@@ -6,7 +6,7 @@ from image_utilities import get_image
 
 
 class Entity:
-    def __init__(self, pos, sprite, team, game):
+    def __init__(self, game, pos, sprite, team):
         """
 
         :param pos: Point object
@@ -20,8 +20,7 @@ class Entity:
         # The players FOV
         self.fov = pi / 4
 
-
-        # This entity's sprite (Image Utilities are not implemented yet)
+        # This entity's sprite
         self.sprite = get_image(sprite)
 
         self.team = team
@@ -127,8 +126,8 @@ class Entity:
 
 
 class Enemy(Entity):
-    def __init__(self, game):
-        super().__init__(pos=Point(13.0, 13.0), sprite="imp.jpg", team=TEAM_ENEMY, game=game)
+    def __init__(self, game, pos=Point(13.0, 13.0), sprite="imp.jpg", team=TEAM_ENEMY):
+        super().__init__(game, pos=pos, sprite=sprite, team=team)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
         self.angle = pi
 
@@ -150,7 +149,7 @@ class Enemy(Entity):
 
 class Player(Entity):
     def __init__(self, game):
-        super().__init__(pos=Point(3.0, 3.0), sprite=None, team=TEAM_PLAYER, game=game)
+        super().__init__(game=game, pos=Point(3.0, 3.0), sprite=None, team=TEAM_PLAYER)
 
         # List for W, A, S, D, Q, E (Q, E used for strafing)
         self.wasdqe_held = [False, False, False, False, False, False]

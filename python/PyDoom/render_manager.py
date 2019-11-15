@@ -165,7 +165,7 @@ def draw_actors(surface, game, walls):
     :param walls: Walls previously generated with build_z_buffer
     :return: nothing
     """
-    for actor in game.enemies:
+    for actor in game.actors:
         a = is_inside(game.player.pos,
                       get_left_fov_extreme_point(game.player),
                       get_right_fov_extreme_point(game.player),
@@ -226,7 +226,7 @@ def draw_minimap(s, g, w):
             logger.log("index error")
         except TypeError as e:
             logger.log("Type error")
-    for actor in g.enemies:
+    for actor in g.actors:
         pos = (int(RENDER_MINI_MAP_OFFSET + (actor.pos.x * LEVEL_CELL_SPACING)),
                int(actor.pos.y * LEVEL_CELL_SPACING))
         ra = get_right_minimap_extreme(pos, actor.angle, actor.fov, 20)
@@ -469,6 +469,7 @@ def get_left_fov_extreme_point(actor, d=RENDER_DEPTH):
 
 def get_right_minimap_extreme(p, a, f, d=200):
     """
+    DEBUGGING TOOL for the minimap, gets the endpoint for the right fov extreme
     :param p: position Point obj
     :param a: angle in radians
     :param f: FOV angle in radians
@@ -480,6 +481,7 @@ def get_right_minimap_extreme(p, a, f, d=200):
 
 def get_left_minimap_extreme(p, a, f, d=200):
     """
+    DEBUGGING TOOL for the minimap, gets the endpoint for the left fov extreme
     :param p: position Point obj
     :param a: angle in radians
     :param f: FOV angle in radians
@@ -489,15 +491,15 @@ def get_left_minimap_extreme(p, a, f, d=200):
     return int(p[0] - d * sin(a - f / 2)), int(p[1] + d * cos(a - f / 2))
 
 
-def get_angle(entity, fov_enpoint, point):
+def get_angle(actor, endpoint, point):
     """
-    :param entity: Entity we're measuring from
-    :param fov_enpoint: Fov arm endpoint
+    :param actor: actor we're measuring from
+    :param endpoint: Fov arm endpoint (get_*_fov_extreme_point()) Check readme for more info
     :param point: Point we're getting the angle to
     :return: Radians
     """
-    a = np.array([entity.pos.x, entity.pos.y])
-    b = np.array([fov_enpoint.x, fov_enpoint.y])
+    a = np.array([actor.pos.x, actor.pos.y])
+    b = np.array([endpoint.x, endpoint.y])
     c = np.array([point.x, point.y])
     ba = b - a
     bc = b - c

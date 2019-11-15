@@ -47,6 +47,7 @@ def get_map2(width, height):
 def create_cells(level_map):
     # WHO NEEDS READABILITY
     # also the single line solution is 0.0002 seconds slower so....
+    # I've included the expanded version of the code for readability
     # r = []
     # for i in range(len(level_map) - 1):
     #     if level_map[i] is '#':
@@ -119,10 +120,10 @@ def extend_wall(i, l, d):
 
 def carry_or_create_wall(c, l):
     """
-    This function builds a list of line segments we treat as obsticals for player vision and movement
+    This function builds a list of line segments we treat as obstacles for actor vision and movement
     or "walls" as normal people call them
 
-
+    Check readme for more information on how the logic works for this
     :param c:
     :param l:
     :return:

@@ -12,12 +12,88 @@ I've recently finished the render manager, There are a ton of helper functions t
 refactored and commented in that file to allow it to be actually human readable.
 
 
-
 Future TODOs will reside here if they're more than a 5 minute fix
 General game plan will reside here as well.
 
 
+# In depth explanation of concepts in use
 
+-- Wall building --
+
+Being able to pass a string, level width, and height makes building levels much easier.
+We can easily parse this into collision using the following algorithm.
+Start at the top left, moving the same way you would read a page.
+At each cell as the following questions to decide if and where walls should be placed.
+
+Is there a cell to the north of this one?
+    if yes:
+        is there a cell to the west of me?
+            if yes: pass
+            if no: does the north cell have a westward wall?
+                if yes: extend that wall down to me
+                if no: it must have a western neighbor so i need to create a west wall
+        is there a cell the east of me?
+            if yes: pass
+            if no: doest the north cell have an eastward wall?
+                if yes: extend that wall down to me
+                if no: it must have a western neighbor so i need to create an east wall
+
+Continue this line of questions for each of this cell's walls to eventually build "polygons" representing the walls
+passed into the function.
+
+Once we have this, we have line segments we can use for collision and rendering.
+
+-- Renderer --
+
+Initially I had constructed a ray marcher which would calculate the rough distance to a wall for each horizontal
+pixel of the screen by stepping 0.1 units at a time until we're indexed into the level string at a pound sign.
+This distance value would be used to calculate the height of the walls, where the player can/cannot move, the shade of
+the wall, etc...
+There were several problems with this implementation,
+- It was computationally expensive (under 30 frames per second)
+- The walls drawn were very jagged
+- It didn't look good
+Here is a photo of this
+https://cdn.discordapp.com/attachments/622095211748786237/634129259840929831/wallheadon.gif
+
+
+After realising ray marching is not an option moving forward I began to evaluate other methods of distance calculation
+eventually coming to treating each horizontal slice of player vision as a line (starting poing, end point) to check
+where that intersected with each wall via some linear algebra... after spending much too long re-learning linear I found
+a solution to my problem. Unfortunately I took no video of this solution as it was rendering at ~0.7 frames per second.
+A very... mild... performance hit. This was due to the calculation speed of the shapely library net being fast enough.
+(horizontal width (1200) x number of walls (~30) x 0.0001s to run the calculation)
+Eventually I hand wrote a solution to this which can be found in render_manager.py called line_intersection
+This sped up render times drastically, allowing ~12 fps on fairly strong computer. pictured below.
+https://imgur.com/VjOvdhg
+Still far too slow, but better.
+
+After spending a fair amount of time trying to find a way to simplify this I came to this realisation,
+I do not need to calculate the distance for each pixel,
+I can instead calculate the distance of each endpoint of each wall which would give me most of the information i need.
+Then I can check how far that point is from the left side of the screen to get the x position to draw it at.
+
+This would work, BUT it would also need a form of culling to save performance again.
+
+Which led to my current implementation boasting 200+ fps for complex level geometry.
+
+We "cast" a line to the left and right of player vision and check what intersects with those lines.
+If there is an intersection with a wall, there must be a point in player vision so we create a new wall with p1 as
+the intersection and p2 as the point of the wall in the triangle that is player vision.
+
+This handles all walls touching the extremes of player vision.
+All we need next is to find which walls have all points fully within player vision and create those as walls as well.
+Now we have newly created wall objects for this frame containing the exact information we need to draw them.
+
+We can then check "how far" each point is from the left fov extreme in radians,
+normalize this value between 0-SCREEN_WIDTH for x.
+we check what the angle fro, the left and right lines are to get the current max for the normalization.
+Unfortunately this causes two problems, one when you're close to walls, one when you look down a hallway.
+Namely fisheye for hallways, and improper geometry when you're really close to walls.
+This should be fairly easily fixed however.
+
+The renderer's current status is pictured below.
+https://imgur.com/7e53wMF
 
 # TODOs
 Build a sprite loader
