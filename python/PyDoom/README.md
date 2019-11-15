@@ -1,4 +1,4 @@
-DOOM comes to python!
+# DOOM comes to python!
 (Except this has probably been done before and better)
 
 This is my implementation of Doom in python.
@@ -54,6 +54,7 @@ There were several problems with this implementation,
 - The walls drawn were very jagged
 - It didn't look good
 Here is a photo of this
+
 https://cdn.discordapp.com/attachments/622095211748786237/634129259840929831/wallheadon.gif
 
 
@@ -65,8 +66,9 @@ A very... mild... performance hit. This was due to the calculation speed of the 
 (horizontal width (1200) x number of walls (~30) x 0.0001s to run the calculation)
 Eventually I hand wrote a solution to this which can be found in render_manager.py called line_intersection
 This sped up render times drastically, allowing ~12 fps on fairly strong computer. pictured below.
-https://imgur.com/VjOvdhg
 Still far too slow, but better.
+
+https://imgur.com/VjOvdhg
 
 After spending a fair amount of time trying to find a way to simplify this I came to this realisation,
 I do not need to calculate the distance for each pixel,
@@ -93,6 +95,7 @@ Namely fisheye for hallways, and improper geometry when you're really close to w
 This should be fairly easily fixed however.
 
 The renderer's current status is pictured below.
+
 https://imgur.com/7e53wMF
 
 # TODOs
