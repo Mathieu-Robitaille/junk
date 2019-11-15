@@ -181,59 +181,59 @@ def draw_actors(surface, game, walls):
             surface.blit(scaled, (x, y, scaled.get_width(), scaled.get_height()))
 
 
-def draw_minimap(s, g, w):
+def draw_minimap(surface, game, walls):
     """
     DEBUG TOOL
-    :param s:
-    :param g:
-    :param c:
+    :param surface:
+    :param game:
+    :param walls:
     :return:
     """
 
-    pg.draw.rect(s, pg.Color("Black"),
+    pg.draw.rect(surface, pg.Color("Black"),
                  (SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_CELL_SPACING),
                   0,
                   LEVEL_WIDTH * LEVEL_CELL_SPACING,
                   LEVEL_HEIGHT * LEVEL_CELL_SPACING))
 
     # Translate the current player's position to the mini map structure
-    player_pos = (int(RENDER_MINI_MAP_OFFSET + (g.player.pos.x * LEVEL_CELL_SPACING)),
-                  int(g.player.pos.y * LEVEL_CELL_SPACING))
+    player_pos = (int(RENDER_MINI_MAP_OFFSET + (game.player.pos.x * LEVEL_CELL_SPACING)),
+                  int(game.player.pos.y * LEVEL_CELL_SPACING))
 
     # Draw the player fov
-    ra = get_right_minimap_extreme(player_pos, g.player.angle, g.player.fov, 200)
-    la = get_left_minimap_extreme(player_pos, g.player.angle, g.player.fov, 200)
-    pg.draw.line(s, pg.Color("Blue"), player_pos, ra)
-    pg.draw.line(s, pg.Color("Blue"), player_pos, la)
+    ra = get_right_minimap_extreme(player_pos, game.player.angle, game.player.fov, 200)
+    la = get_left_minimap_extreme(player_pos, game.player.angle, game.player.fov, 200)
+    pg.draw.line(surface, pg.Color("Blue"), player_pos, ra)
+    pg.draw.line(surface, pg.Color("Blue"), player_pos, la)
 
     # Player
-    pg.draw.circle(s, pg.Color("red"), player_pos, 1)
+    pg.draw.circle(surface, pg.Color("red"), player_pos, 1)
 
-    for wall in g.level.walls:
+    for wall in game.level.walls:
         start = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                  int(wall.p1.y * LEVEL_CELL_SPACING))
         end = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
                int(wall.p2.y * LEVEL_CELL_SPACING))
-        pg.draw.line(s, pg.Color("Green"), start, end)
-    for wall in w:
+        pg.draw.line(surface, pg.Color("Green"), start, end)
+    for wall in walls:
         try:
             ls = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                   int(wall.p1.y * LEVEL_CELL_SPACING))
             le = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
                   int(wall.p2.y * LEVEL_CELL_SPACING))
-            pg.draw.line(s, pg.Color("Red"), ls, le)
+            pg.draw.line(surface, pg.Color("Red"), ls, le)
         except IndexError:
             logger.log("index error")
         except TypeError as e:
             logger.log("Type error")
-    for actor in g.actors:
+    for actor in game.actors:
         pos = (int(RENDER_MINI_MAP_OFFSET + (actor.pos.x * LEVEL_CELL_SPACING)),
                int(actor.pos.y * LEVEL_CELL_SPACING))
         ra = get_right_minimap_extreme(pos, actor.angle, actor.fov, 20)
         la = get_left_minimap_extreme(pos, actor.angle, actor.fov, 20)
-        pg.draw.line(s, pg.Color("Blue"), pos, ra)
-        pg.draw.line(s, pg.Color("Blue"), pos, la)
-        pg.draw.circle(s, pg.Color("red"), pos, 1)
+        pg.draw.line(surface, pg.Color("Blue"), pos, ra)
+        pg.draw.line(surface, pg.Color("Blue"), pos, la)
+        pg.draw.circle(surface, pg.Color("red"), pos, 1)
 
 
 """
