@@ -1,5 +1,4 @@
 from math import sqrt
-from dataclasses import dataclass
 
 VERSION = "0.0.4"
 

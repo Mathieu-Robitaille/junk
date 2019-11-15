@@ -99,25 +99,25 @@ class Entity:
     def move_check(self, direction):
         "forwards, backwards, strafe left, strafe right"
         # This is really messy... How could I simplify this?
-        if direction is 1:  # backwards
+        if direction == 1:  # backwards
             tmp_pos = (self.pos.x - (sin(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick),
                        self.pos.y + (cos(self.angle) * (self.move_speed * self.move_buffer + 0.5) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos.x = self.pos.x - (sin(self.angle) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y + (cos(self.angle) * self.move_speed * self.tick)
-        elif direction is 2:  # forwards
+        elif direction == 2:  # forwards
             tmp_pos = (self.pos.x + (sin(self.angle) * (self.move_speed * self.move_buffer) * self.tick),
                        self.pos.y - (cos(self.angle) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos.x = self.pos.x + (sin(self.angle) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y - (cos(self.angle) * self.move_speed * self.tick)
-        elif direction is 3:  # Strafe left
+        elif direction == 3:  # Strafe left
             tmp_pos = (self.pos.x - (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
                        self.pos.y - (cos(self.angle + pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
                 self.pos.x = self.pos.x - (sin(self.angle - pi / 2) * self.move_speed * self.tick)
                 self.pos.y = self.pos.y - (cos(self.angle + pi / 2) * self.move_speed * self.tick)
-        elif direction is 4:  # Strafe right
+        elif direction == 4:  # Strafe right
             tmp_pos = (self.pos.x + (sin(self.angle - pi / 2) * (self.move_speed * self.move_buffer) * self.tick),
                        self.pos.y + (cos(self.angle + pi / 2) * (self.move_speed * self.move_buffer) * self.tick))
             if not self.game.level.map[two_d_to_one_d(tmp_pos, self.game.level.width)].is_wall:
@@ -137,11 +137,9 @@ class Enemy(Entity):
 
     def do_damage(self, target, damage_type, amount):
         super().do_damage(target, damage_type, amount)
-        pass
 
     def take_damage(self, amount):
         super().take_damage(amount)
-        pass
 
     def move(self):
         super().move()
@@ -159,11 +157,9 @@ class Player(Entity):
 
     def do_damage(self, target, damagetype, amount):
         super().do_damage(target, damagetype, amount)
-        pass
 
     def take_damage(self, amount):
         super().take_damage(amount)
-        pass
 
     def move(self):
         if self.wasdqe_held[0]:  # W

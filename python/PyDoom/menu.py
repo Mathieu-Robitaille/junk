@@ -1,7 +1,7 @@
 import pygame as pg
 from pydoom import PyDoom
-from render_manager import *
-from globals import FONT, SCREEN_WIDTH, SCREEN_HEIGHT, MENU_SPACING
+from globals import FONT, SCREEN_WIDTH, SCREEN_HEIGHT, MENU_SPACING,\
+    MENU_OPTIONS_MAIN, MENU_OPTIONS_OPTION, SCREEN_MENU, SCREEN_OPTIONS
 from image_utilities import get_image
 
 
@@ -16,16 +16,17 @@ class Menu(PyDoom):
         self.font = pg.font.Font(FONT, 30)
         self.main_image = get_image("MainLogo.png")
 
-    def draw(self, surface, clock=None):
+    def draw(self, surface):
         surface.blit(self.main_image, (0, 0, SCREEN_WIDTH, SCREEN_HEIGHT))
-        for o in self.options:
+        for option in self.options:
             color = pg.Color("Dark grey")
-            if self.options.index(o) == self.active:
+            if self.options.index(option) == self.active:
                 color = pg.Color("Light grey")
-            text = self.font.render(o, True, color)
+            text = self.font.render(option, True, color)
             text_rect = text.get_rect()
             text_rect.center = (SCREEN_WIDTH / 2,
-                                SCREEN_HEIGHT * 0.60 - (len(self.options) * MENU_SPACING / 2) + MENU_SPACING * self.options.index(o))
+                                SCREEN_HEIGHT * 0.60 - (len(self.options) * MENU_SPACING / 2)
+                                + MENU_SPACING * self.options.index(option))
             surface.blit(text, text_rect)
 
     def change_active(self, move):

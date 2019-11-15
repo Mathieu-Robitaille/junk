@@ -1,9 +1,4 @@
-from math import floor
-from random import randint, choice
-import logger
-from globals import *
-from timeit import default_timer as timer
-
+from globals import one_d_to_two_d, Line, LEVEL_WIDTH, LEVEL_HEIGHT
 
 
 def get_map(width, height):
@@ -23,6 +18,7 @@ def get_map(width, height):
            "#    ###      #" \
            "#             #" \
            "###############"
+
 
 def get_map2(width, height):
     #
@@ -44,6 +40,7 @@ def get_map2(width, height):
            "#                            #" \
            "##############################"
 
+
 def create_cells(level_map):
     # WHO NEEDS READABILITY
     # also the single line solution is 0.0002 seconds slower so....
@@ -56,7 +53,7 @@ def create_cells(level_map):
     #     else:
     #         # Not a wall
     #         r.append(Cell(i, is_wall=False))
-    return [Cell(x, True if level_map[x] is '#' else False) for x in range(len(level_map))]
+    return [Cell(x, True if level_map[x] == '#' else False) for x in range(len(level_map))]
 
 
 def get_north(c, l):
@@ -67,17 +64,17 @@ def get_south(c, l):
     result = None
     try:
         result = l.map[c.id + l.width] if c.id + l.width <= len(l.map) - 1 else None
-    except Exception as e:
+    except IndexError:
         print("oh no")
     return result
 
 
 def get_east(c, l):
-    return l.map[c.id + 1] if c.id % l.width is not l.width - 1 else None
+    return l.map[c.id + 1] if c.id % l.width != l.width - 1 else None
 
 
 def get_west(c, l):
-    return l.map[c.id - 1] if c.id % l.width is not 0 else None
+    return l.map[c.id - 1] if c.id % l.width != 0 else None
 
 
 def create_wall(c, l, d):
@@ -138,10 +135,9 @@ def carry_or_create_wall(c, l):
     east = get_east(c, l)
     west = get_west(c, l)
 
-
     # Evaluate the situation for the Northern wall
     if (north is not None and not north.is_wall) and west is not None:
-        if west.walls[0] is not 0:
+        if west.walls[0] != 0:
             extend_wall(west.walls[0], l, "N")
             c.walls[0] = west.walls[0]
         else:
@@ -149,7 +145,7 @@ def carry_or_create_wall(c, l):
 
     # Evaluate the Southern wall
     if (south is not None and not south.is_wall) and west is not None:
-        if west.walls[1] is not 0:
+        if west.walls[1] != 0:
             extend_wall(west.walls[1], l, "S")
             c.walls[1] = west.walls[1]
         else:
@@ -157,7 +153,7 @@ def carry_or_create_wall(c, l):
 
     # Evaluate the east wall
     if (east is not None and not east.is_wall) and north is not None:
-        if north.walls[2] is not 0:
+        if north.walls[2] != 0:
             extend_wall(north.walls[2], l, "E")
             c.walls[2] = north.walls[2]
         else:
@@ -165,7 +161,7 @@ def carry_or_create_wall(c, l):
 
     # Evaluate the west wall
     if (west is not None and not west.is_wall) and north is not None:
-        if north.walls[3] is not 0:
+        if north.walls[3] != 0:
             extend_wall(north.walls[3], l, "W")
             c.walls[3] = north.walls[3]
         else:

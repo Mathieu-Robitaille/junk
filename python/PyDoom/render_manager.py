@@ -1,15 +1,16 @@
-from math import cos, sin, pi, fabs, sqrt, atan2
-from timeit import default_timer as timer
+"""
+This module is responsible for taking data from a game object, then translating it
+into a visual representation of that data.
+"""
+
+from math import cos, sin, pi
 
 import numpy as np
 import pygame as pg
 import logger
-from globals import *
-
-"""
-Forgive the mess in this file. After several rewrites and concept shifts comments are sparse and
-general structure is in shambles. 
-"""
+from globals import SCREEN_WIDTH, SCREEN_HEIGHT, LEVEL_WIDTH, LEVEL_HEIGHT, \
+    LEVEL_CELL_SPACING, RENDER_MINI_MAP_OFFSET, RENDER_DEPTH, Wall, Line, Point, \
+    normalize, distance_to_point
 
 
 def points_in_circum(offset=0, radius=100, n=100):
@@ -32,14 +33,15 @@ def points_in_circum(offset=0, radius=100, n=100):
 def draw(game, surface):
     """
     The governor for the general order of things being drawn to the game screen
-    Eventually there will be a "Z Buffer" handling the draw order for all objects, allowing sprites/actors to be
-    partially behind walls
+    Eventually there will be a "Z Buffer" handling the draw order for all objects,
+    allowing sprites/actors to be partially behind walls
     :param game: The game object
     :param surface: The screen
     """
     # Build collision
     walls = build_z_buffer_walls(game)
-    # Rough sort of walls based on their normals (Generally a wall with a further normal will be obscured by others
+    # Rough sort of walls based on their normals
+    # (Generally a wall with a further normal will be obscured by others
     #  so it should be drawn first)
     walls.sort(key=lambda wall: wall.n_d, reverse=True)
     draw_walls(surface, game, walls)
@@ -50,9 +52,11 @@ def draw(game, surface):
 
 def build_z_buffer_walls(game):
     """
-    Build Wall objects based on the player's Field of View, Using this we can build walls by checking where if any
-        Intersections occur at the extremes of the player fov, if there are then we use that point in the construction of an
-            obstacle for the player's vision
+    Build Wall objects based on the player's Field of View,
+    Using this we can build walls by checking where if any
+    Intersections occur at the extremes of the player fov,
+    if there are then we use that point in the construction of an
+    obstacle for the player's vision
     :param game: Game object
     :return:
     """
@@ -67,11 +71,11 @@ def build_z_buffer_walls(game):
 
     # Right and left line intersection tools
     right_line = Line(
-        (pos.x, pos.y),
+        pos,
         get_right_fov_extreme_point(game.player)
     )
     left_line = Line(
-        (pos.x, pos.y),
+        pos,
         get_left_fov_extreme_point(game.player)
     )
 
@@ -91,8 +95,8 @@ def build_z_buffer_walls(game):
             continue
 
         # If only the right fov extreme intersects then select one of the existing wall end points
-        #   This is where the bug is as it's assuming RENDER_DISTANCE is larger then the level
-        #       Could pretty easily be fixedby extending the point_in_view distance or ignoring the wall
+        # This is where the bug is as it's assuming RENDER_DISTANCE is larger then the level
+        # Could pretty easily be fixedby extending the point_in_view distance or ignoring the wall
         if ri:
             if pv(game.player, wall.p1):
                 p = wall.p1
@@ -150,21 +154,23 @@ def draw_walls(surface, game, walls):
                 (x2, wall.floor_p2)
             )
             color = (wall.color_p1, wall.color_p1, wall.color_p1)
-            pg.draw.polygon(surface, color, coordinates, 0)
-        except Exception as e:
+            pg.draw.polygon(surface, color, coordinates)
+        except TypeError as e:
             # This exception is not really needed
             logger.log("There has been an exception : ", e)
 
 
 def draw_actors(surface, game, walls):
     """
-    For actor drawing we'll need to build a "Z buffer" ordered by distance to the player, drawing each item in the list
+    For actor drawing we'll need to build a "Z buffer" ordered by distance to the player,
+    drawing each item in the list
     in reverse order (farthest thing first, closest thing last)
     :param surface: surface to draw things to
     :param game: cast list, do I really need this????
     :param walls: Walls previously generated with build_z_buffer
     :return: nothing
     """
+    dp = distance_to_point
     for actor in game.actors:
         a = is_inside(game.player.pos,
                       get_left_fov_extreme_point(game.player),
@@ -173,8 +179,8 @@ def draw_actors(surface, game, walls):
         b = check_viewable(game.player, actor, walls)
         # Is the actor in the player's fov and render distance with no walls obstructing it?
         if a and b:
-            sx = int(actor.sprite.get_width() * (1 / distance_to_point(game.player.pos, actor.pos)))
-            sy = int(actor.sprite.get_height() * (1 / distance_to_point(game.player.pos, actor.pos)))
+            sx = int(actor.sprite.get_width() * (1 / dp(game.player.pos, actor.pos)))
+            sy = int(actor.sprite.get_height() * (1 / dp(game.player.pos, actor.pos)))
             # Scale the sprite based on distance
             scaled = pg.transform.scale(actor.sprite, (sx, sy))
             x, y = get_actor_coords(game.player, actor)
@@ -203,8 +209,8 @@ def draw_minimap(surface, game, walls):
     # Draw the player fov
     ra = get_right_minimap_extreme(player_pos, game.player.angle, game.player.fov, 200)
     la = get_left_minimap_extreme(player_pos, game.player.angle, game.player.fov, 200)
-    pg.draw.line(surface, pg.Color("Blue"), player_pos, ra)
-    pg.draw.line(surface, pg.Color("Blue"), player_pos, la)
+    pg.draw.line(surface, pg.Color("Blue"), player_pos, ra, 1)
+    pg.draw.line(surface, pg.Color("Blue"), player_pos, la, 1)
 
     # Player
     pg.draw.circle(surface, pg.Color("red"), player_pos, 1)
@@ -214,33 +220,30 @@ def draw_minimap(surface, game, walls):
                  int(wall.p1.y * LEVEL_CELL_SPACING))
         end = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
                int(wall.p2.y * LEVEL_CELL_SPACING))
-        pg.draw.line(surface, pg.Color("Green"), start, end)
+        pg.draw.line(surface, pg.Color("Green"), start, end, 1)
     for wall in walls:
         try:
             ls = (int(RENDER_MINI_MAP_OFFSET + (wall.p1.x * LEVEL_CELL_SPACING)),
                   int(wall.p1.y * LEVEL_CELL_SPACING))
             le = (int(RENDER_MINI_MAP_OFFSET + (wall.p2.x * LEVEL_CELL_SPACING)),
                   int(wall.p2.y * LEVEL_CELL_SPACING))
-            pg.draw.line(surface, pg.Color("Red"), ls, le)
+            pg.draw.line(surface, pg.Color("Red"), ls, le, 1)
         except IndexError:
             logger.log("index error")
-        except TypeError as e:
+        except TypeError:
             logger.log("Type error")
     for actor in game.actors:
         pos = (int(RENDER_MINI_MAP_OFFSET + (actor.pos.x * LEVEL_CELL_SPACING)),
                int(actor.pos.y * LEVEL_CELL_SPACING))
         ra = get_right_minimap_extreme(pos, actor.angle, actor.fov, 20)
         la = get_left_minimap_extreme(pos, actor.angle, actor.fov, 20)
-        pg.draw.line(surface, pg.Color("Blue"), pos, ra)
-        pg.draw.line(surface, pg.Color("Blue"), pos, la)
+        pg.draw.line(surface, pg.Color("Blue"), pos, ra, 1)
+        pg.draw.line(surface, pg.Color("Blue"), pos, la, 1)
         pg.draw.circle(surface, pg.Color("red"), pos, 1)
 
 
-"""
-Below are the supporting functions 
-These all need error checking, type checking, and comments
-"""
-
+# Below are the supporting functions
+# These all need error checking, type checking, and comments
 
 def check_viewable(actor1, actor2, walls):
     """
@@ -275,10 +278,11 @@ def get_actor_coords(actor1, actor2):
 def get_x_coordinate(entity, point, l, r):
     """
     This is really bad and needs to get re-worked
-    The current idea is a quick fix that came to me in the middle of the night
-    Measure the angle from the left and right sides at the distance of the point, we cant then normalise this value
+    Measure the angle from the left and right sides at
+    the distance of the point, we cant then normalise this value
     to an x coordinate on the screen
-    It causes a fisheye camera, but it works and works faster than the previous 3 or so ideas I've had
+    It causes a fisheye camera, but it works and works faster
+    than the previous 3 or so ideas I've had
     See readme for more info on render issues
     :param entity: Current player, camera
     :param point: Point we're evaluating
@@ -288,18 +292,17 @@ def get_x_coordinate(entity, point, l, r):
     """
     if fuzzy_is_on_line(point, l):
         return 0
-    elif fuzzy_is_on_line(point, r):
+    if fuzzy_is_on_line(point, r):
         return SCREEN_WIDTH
-    else:
-        ang = get_angle(entity, l.p2, point)
-        ang2 = get_angle(entity, r.p2, point)
-        # get_angle returns a different value at different distances.
-        # I'm not sure how to solve this issue without the current get _angle code
-        # so a quick patch that works is to get the angle from both sides of the fov
-        # and add them together since this will always be the maximum for that distance
-        return normalize(ang,
-                         0, ang + ang2,
-                         0, SCREEN_WIDTH)
+    ang = get_angle(entity, l.p2, point)
+    ang2 = get_angle(entity, r.p2, point)
+    # get_angle returns a different value at different distances.
+    # I'm not sure how to solve this issue without the current get _angle code
+    # so a quick patch that works is to get the angle from both sides of the fov
+    # and add them together since this will always be the maximum for that distance
+    return normalize(ang,
+                     0, ang + ang2,
+                     0, SCREEN_WIDTH)
 
 
 def is_on_line(p, l):
@@ -335,11 +338,14 @@ def fuzzy_is_on_line(p, l):
 
 def line_intersection(l1, l2):
     """
-    Takes two line objects and checks if they intersect, if they do return the x, y coordinate of the intersection
+    Takes two line objects and checks if they intersect,
+    if they do return the x, y coordinate of the intersection
     else return False
 
-    Using the following resource I was able to build a faster implementation of this than using the
-    shapely library which was far too slow for these purposes (This is better but possibly not the final solution)
+    Using the following resource I was able to build
+    a faster implementation of this than using the
+    shapely library which was far too slow for these purposes
+    (This is better but possibly not the final solution)
     http://paulbourke.net/geometry/pointlineplane/
     :param l1: A Line object
     :param l2: A line object
@@ -365,13 +371,12 @@ def line_intersection(l1, l2):
         x = l1.p1.x + (ra * (l1.p2.x - l1.p1.x))
         y = l1.p1.y + (ra * (l1.p2.y - l1.p1.y))
         return Point(x, y)
-    else:
-        return False
+    return False
 
 
 def calc_ceiling(d):
     """
-    Gets the ceiling height of somethign based on the distance
+    Gets the ceiling height of something based on the distance
     :param d:
     :return:
     """
@@ -391,10 +396,7 @@ def point_in_view(actor, point):
     """
     l = get_left_fov_extreme_point(actor)
     r = get_right_fov_extreme_point(actor)
-    if is_inside(actor.pos, l, r, point):
-        return True
-    else:
-        return False
+    return is_inside(actor.pos, l, r, point)
 
 
 def is_inside(a, b, c, p):
@@ -424,10 +426,7 @@ def is_inside(a, b, c, p):
     # Check if sum of pbc, pbc and pab
     # is same as abc
     r = pbc + pac + pab
-    if r - 0.5 <= abc <= r + 0.5:
-        return True
-    else:
-        return False
+    return bool(r - 0.5 <= abc <= r + 0.5)
 
 
 # Standardise angles for easy maths
@@ -505,5 +504,3 @@ def get_angle(actor, endpoint, point):
     bc = b - c
     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
     return np.arccos(cos_ang) * 10
-
-
