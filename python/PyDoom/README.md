@@ -118,7 +118,8 @@ Build a sprite loader with translating based on enemy angle
 
 # Next big rewrites
 Allow non rectangular level geometry. 
-Allow walls to have windows. 
+Allow walls to have windows.
+Build a binary space partitioner for new level geometry, may walls = slow game if not handled properly
 
 
 BONUS FEATURES:

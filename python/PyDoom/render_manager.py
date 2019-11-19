@@ -7,6 +7,7 @@ from math import cos, sin, pi
 
 import numpy as np
 import pygame as pg
+
 import logger
 from globals import SCREEN_WIDTH, SCREEN_HEIGHT, LEVEL_WIDTH, LEVEL_HEIGHT, \
     LEVEL_CELL_SPACING, RENDER_MINI_MAP_OFFSET, RENDER_DEPTH, Wall, Line, Point, \
@@ -418,8 +419,10 @@ def is_inside(a, b, c, p):
     :param p: Point we're evaluating
     :return: Bool, True / False
     """
+
     def area(x1, y1, x2, y2, x3, y3):
         return abs((x1 * (y2 - y3) + x2 * (y3 - y1) + x3 * (y1 - y2)) / 2.0)
+
     # Calculate area of triangle ABC
     abc = area(a.x, a.y, b.x, b.y, c.x, c.y)
 
