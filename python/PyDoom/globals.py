@@ -175,10 +175,8 @@ class Wall:
         self.p1_d = distance_to_point(player_pos, p1)
         self.p2_d = distance_to_point(player_pos, p2)
         self.n_d = distance_to_point(player_pos, Point((p2.x + p1.x) / 2, (p2.y + p1.y) / 2))
-        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
-                          (self.p1_d if self.p1_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
-        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / \
-                          (self.p2_d if self.p2_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
+        self.ceiling_p1 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p1_d
+        self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / self.p2_d
         self.floor_p1 = SCREEN_HEIGHT - self.ceiling_p1
         self.floor_p2 = SCREEN_HEIGHT - self.ceiling_p2
         self.color_p1 = 255 - normalize(distance_to_point(p1, player_pos), 0, RENDER_DEPTH, 0, 255)

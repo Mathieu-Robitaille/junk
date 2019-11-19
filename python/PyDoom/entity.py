@@ -1,8 +1,8 @@
-import pygame as pg
-
 from math import pi, cos, sin
 from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point
 from image_utilities import get_image
+
+import pygame as pg
 
 
 class Entity:

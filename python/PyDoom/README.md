@@ -98,8 +98,27 @@ The renderer's current status is pictured below.
 
 https://imgur.com/7e53wMF
 
+
+$MANGLING
+At the extremes of the camera walls would lose their shape and snap to the borders of the window.
+This is intended but not in the method previously done as it made for very ugly corners and walls when parallel.
+
+I've commented the get_x_coordinates function with my previous thoughts as to why it was broken and now what has fixed it.
+Because the walls were not allowed to be represented as their true size, when very close to them they would deform. 
+
+    Stripped out the ceiling if statement and it resolved
+    This issue.
+    self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / (self.p2_d \
+        if self.p2_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
+
+
 # TODOs
-Build a sprite loader
+Build a sprite loader with translating based on enemy angle
+
+
+# Next big rewrites
+Allow non rectangular level geometry. 
+Allow walls to have windows. 
 
 
 BONUS FEATURES:

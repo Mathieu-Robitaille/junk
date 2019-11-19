@@ -284,6 +284,15 @@ def get_x_coordinate(entity, point, l, r):
     It causes a fisheye camera, but it works and works faster
     than the previous 3 or so ideas I've had
     See readme for more info on render issues
+
+    Turns out, Because I was defaulting walls to a set size
+    The walls were getting mangled all along...
+
+    Stripped out the ceiling if statement and it resolved
+    This issue.
+    self.ceiling_p2 = (SCREEN_HEIGHT / 2.0) - SCREEN_HEIGHT / (self.p2_d \
+        if self.p2_d >= RENDER_WALL_SIZE else RENDER_WALL_SIZE)
+
     :param entity: Current player, camera
     :param point: Point we're evaluating
     :param l: Current player's left fov max (Line)
@@ -503,4 +512,4 @@ def get_angle(actor, endpoint, point):
     ba = b - a
     bc = b - c
     cos_ang = np.dot(ba, bc) / (np.linalg.norm(ba) * np.linalg.norm(bc))
-    return np.arccos(cos_ang) * 10
+    return np.arccos(cos_ang)
