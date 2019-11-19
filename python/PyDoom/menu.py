@@ -45,7 +45,7 @@ class Menu(PyDoom):
                 elif event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 1 and pydoomobj:
                     pydoomobj.change_to_options()
                 elif event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 2 and pydoomobj:
-                    pg.quit()
+                    pg.event.post(pg.event.Event(pg.QUIT))
             elif pydoomobj.active is SCREEN_OPTIONS:
                 if event.key in (pg.K_SPACE, pg.K_RETURN) and self.active == 0 and pydoomobj:
                     pass  # Change graphics resolution
