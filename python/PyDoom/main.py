@@ -58,7 +58,7 @@ class Doom(PyDoom):
         # Modularise as much of the code as possible allowing everything to EVENTUALLY be tucked away neatly into
         # its own little function
         while True:
-            self.clock.tick()
+            self.clock.tick(60)
             self.frame_time = self.clock.get_time() / 1000
             super().run()
             for event in pg.event.get():
