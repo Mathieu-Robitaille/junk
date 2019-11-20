@@ -16,6 +16,16 @@ Future TODOs will reside here if they're more than a 5 minute fix
 General game plan will reside here as well.
 
 
+# Imports
+As I work more on this project I'm discovering my imports are not so great...
+I'll have to read up more on how larger projects handle passing data all over
+
+# Structure
+I've recently tried to re-work the structure of this project to follow the concepts in the following link
+
+https://docs.python-guide.org/writing/structure/
+
+
 # In depth explanation of concepts in use
 
 -- Wall building --

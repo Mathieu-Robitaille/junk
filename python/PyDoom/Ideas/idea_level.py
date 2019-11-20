@@ -1,7 +1,7 @@
 from math import floor
 from random import randint, choice
-import logger
-from globals import *
+from PyDoom import logger
+from PyDoom.globals import *
 
 
 """
