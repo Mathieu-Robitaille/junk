@@ -1,6 +1,7 @@
 from math import pi, cos, sin
 
 import pygame as pg
+import os
 
 from PyDoom.globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point, SCREEN_HEIGHT, SCREEN_WIDTH
 from PyDoom.imageutilities import get_image
@@ -152,6 +153,7 @@ class Player(Entity):
     def __init__(self, game):
         super().__init__(game=game, pos=Point(3.0, 3.0), sprite=None, team=TEAM_PLAYER)
         self.prev_mouse_aim = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        self.bugged_aiming_because_pycharm = "PYCHARM_HOSTED" in os.environ
 
         # List for W, A, S, D, Q, E (Q, E used for strafing)
         self.wasdqe_held = [False, False, False, False, False, False]
@@ -174,8 +176,14 @@ class Player(Entity):
         self.angle -= (0.75 * (diff / 10) * self.tick)
         pg.mouse.set_pos((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
         """
-        diff = pg.mouse.get_rel()
-        self.angle -= (0.75 * (-diff[0] / 10) * self.tick)
+        if self.bugged_aiming_because_pycharm:
+            pos = pg.mouse.get_pos()
+            diff = self.prev_mouse_aim[0] - pos[0]
+            self.angle -= (0.75 * (diff / 10) * self.tick)
+            pg.mouse.set_pos((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        else:
+            diff = pg.mouse.get_rel()
+            self.angle -= (0.75 * (-diff[0] / 10) * self.tick)
 
     def move(self):
         if self.wasdqe_held[0]:  # W
