@@ -15,6 +15,21 @@ refactored and commented in that file to allow it to be actually human readable.
 Future TODOs will reside here if they're more than a 5 minute fix
 General game plan will reside here as well.
 
+# DoomCAD
+
+I need to move away from having map data as a string, time to build a tool to facilitate constructing levels.
+DoomCAD will serve this purpose.
+
+The core idea behind DoomCAD is to act as its name implies, similar to AutoCAD it should let me plop shapes together
+easily and assign data to those shapes such as texture name, height, window info, etc...
+
+Controls right now are
+
+Left CTRL = Pan around
+Left SHIFT = Rectangle
+
+left click & Drag with no keys = Line
+Right Click = Move line point
 
 # Imports
 As I work more on this project I'm discovering my imports are not so great...
