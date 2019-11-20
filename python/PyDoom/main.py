@@ -40,6 +40,9 @@ class Doom(PyDoom):
         # load the previous game save, change options, etc...
         self.active = SCREEN_MENU
 
+        pg.event.set_grab(True)
+        pg.mouse.set_visible(False)
+
     def draw(self, surface):
         # Set the backdrop for any rendering
         self.surface.fill(pg.Color("black"))
@@ -66,6 +69,7 @@ class Doom(PyDoom):
             # Update the currently active screen
             self.update(self.frame_time)
             self.draw(self.surface)
+            pg.mouse.set_pos((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
     def update(self, frame_time):
         super().update(self.frame_time)

@@ -14,7 +14,7 @@ class Game(PyDoom):
         self.level = Level()
         self.player = Player(self)
         # Temporary var for testing, I'll build a more long term solution to access actors when
-        self.actors = [Enemy(self, pos=Point(x, y), sprite="imp.jpg") for x, y in [
+        self.actors = [Enemy(self, pos=Point(x, y), sprite="imp.png") for x, y in [
             (5, 4), (13, 13), (6, 1.5), (6, 8)]]
 
     def draw(self, surface):

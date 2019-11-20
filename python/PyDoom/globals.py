@@ -57,8 +57,6 @@ RENDER_DEPTH = 30
 RENDER_WALL_SIZE = 2.5
 # This is the divisor for ray casting, a larger number means more deg between rays
 
-
-
 RENDER_MINI_MAP_OFFSET = SCREEN_WIDTH - (LEVEL_WIDTH * LEVEL_PATH_OFFSET)
 
 #

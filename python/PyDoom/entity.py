@@ -1,5 +1,5 @@
 from math import pi, cos, sin
-from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point
+from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point, SCREEN_HEIGHT, SCREEN_WIDTH
 from image_utilities import get_image
 
 import pygame as pg
@@ -18,7 +18,9 @@ class Entity:
         self.pos = pos
 
         # The players FOV
-        self.fov = pi / 4
+        # Default pi / 4
+        # convert 110 deg to radians
+        self.fov = pi / 3  # 110 * pi / 180
 
         # This entity's sprite
         self.sprite = get_image(sprite)
@@ -126,7 +128,7 @@ class Entity:
 
 
 class Enemy(Entity):
-    def __init__(self, game, pos=Point(13.0, 13.0), sprite="imp.jpg", team=TEAM_ENEMY):
+    def __init__(self, game, pos=Point(13.0, 13.0), sprite="imp.png", team=TEAM_ENEMY):
         super().__init__(game, pos=pos, sprite=sprite, team=team)
         self.spotted_player = False  # ??? How are we going to handle attacking the player?
         self.angle = pi
@@ -148,6 +150,7 @@ class Enemy(Entity):
 class Player(Entity):
     def __init__(self, game):
         super().__init__(game=game, pos=Point(3.0, 3.0), sprite=None, team=TEAM_PLAYER)
+        self.prev_mouse_aim = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
 
         # List for W, A, S, D, Q, E (Q, E used for strafing)
         self.wasdqe_held = [False, False, False, False, False, False]
@@ -161,19 +164,27 @@ class Player(Entity):
     def take_damage(self, amount):
         super().take_damage(amount)
 
+    def mouse_aim(self):
+        pos = pg.mouse.get_pos()
+        diff = self.prev_mouse_aim[0] - pos[0]
+        self.angle -= (0.75 * (diff / 10) * self.tick)
+
     def move(self):
         if self.wasdqe_held[0]:  # W
             self.move_check(1)
         if self.wasdqe_held[1]:  # A
-            self.angle -= 0.75 * self.tick
+            # self.angle -= 0.75 * self.tick
+            self.move_check(3)
         if self.wasdqe_held[2]:  # S
             self.move_check(2)
         if self.wasdqe_held[3]:  # D
-            self.angle += 0.75 * self.tick
-        if self.wasdqe_held[4]:  # Q
-            self.move_check(3)
-        if self.wasdqe_held[5]:  # E
+            # self.angle += 0.75 * self.tick
             self.move_check(4)
+        # if self.wasdqe_held[4]:  # Q
+        #     self.move_check(3)
+        # if self.wasdqe_held[5]:  # E
+        #     self.move_check(4)
+        self.mouse_aim()
 
     def event(self, event):
         super().event(event)
