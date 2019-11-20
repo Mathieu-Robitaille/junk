@@ -1,5 +1,21 @@
+# DoomCAD
+
 For non-rectangular geometry I'll need an easy way to plot map lines with extra data
 At the start my thoughts are to use PyQT? as a window manager and pack the data via JSON
+
+# Controls
+
+Controls right now are
+
+Left CTRL = Pan around
+
+Left SHIFT = Rectangle
+
+left click & Drag with no keys = Line
+
+Right Click = Move line point
+
+
 
 Nice to haves for this project
     
