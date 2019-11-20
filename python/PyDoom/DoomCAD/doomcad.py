@@ -3,6 +3,12 @@ import sys
 
 from math import sqrt
 
+"""
+DoomCAD is 100% still in the "This is a rough prototype phase" so messy code is to be expected as
+it is very possible I abandon this in favor of a 3D level editor. Especially if I migrate to pandas3D
+for rendering in the future
+"""
+
 CLOSE = 4
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -18,24 +24,36 @@ class DoomCAD:
         self.end = (-1000000, -1000000)
         self.offset = (-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
         self.start_offset = (0, 0)
+        # Line, Rectangle, Circle, Splines
+        self.shapes = [False, False, False, False]
         self.mouse_pos = (0, 0)
         self.lines = []
+        self.squares = []
         self.pan = False
 
     def draw(self):
-        pos = screen_to_world(pg.mouse.get_pos(), self.offset)
         pg.draw.circle(self.surface, pg.Color("white"), world_to_screen((0, 0), self.offset), 10)
         for line in self.lines:
             start = world_to_screen(line[0], self.offset)
             end = world_to_screen(line[1], self.offset)
             pg.draw.aaline(self.surface, pg.Color("White"), start, end)
-            if dist(start, pos) <= CLOSE:
+            if dist(start, pg.mouse.get_pos()) <= CLOSE:
                 pg.draw.circle(self.surface, pg.Color("Red"), start, 3)
-            if dist(end, pos) <= CLOSE:
+            if dist(end, pg.mouse.get_pos()) <= CLOSE:
                 pg.draw.circle(self.surface, pg.Color("Red"), end, 3)
+        for rect in self.squares:
+            x, y = world_to_screen((rect.x, rect.y), self.offset)
+            w = rect.w
+            h = rect.h
+            pg.draw.rect(self.surface, pg.Color("Green"), (x, y, w, h), 5)
         if self.end != (-1000000, -1000000):
             end = world_to_screen(self.end, self.offset)
-            pg.draw.aaline(self.surface, pg.Color("Red"), end, self.mouse_pos)
+            if self.shapes[0]:
+                pg.draw.aaline(self.surface, pg.Color("Red"), end, self.mouse_pos)
+            elif self.shapes[1]:
+                pos = pg.mouse.get_pos()
+                pg.draw.rect(self.surface, pg.Color("Red"), (end[0], end[1], pos[0] - end[0], pos[1] - end[1]), 5)
+
         pg.display.update()
 
     def near_other(self):
@@ -68,10 +86,20 @@ class DoomCAD:
                             if near[0] in self.lines:
                                 self.lines.remove(near[0])
                     if event.button == 1:
-                        self.end = screen_to_world(pg.mouse.get_pos(), self.offset)
+                        if all(k == 0 for k in keys):
+                            self.shapes[0] = True
+                        elif keys[pg.K_LSHIFT]:
+                            self.shapes[1] = True
+                        if any(self.shapes):
+                            self.end = screen_to_world(pg.mouse.get_pos(), self.offset)
                 if event.type == pg.MOUSEBUTTONUP:
                     if self.end != (-1000000, -1000000):
-                        self.lines.append((self.end, screen_to_world(pg.mouse.get_pos(), self.offset)))
+                        if self.shapes[0]:
+                            self.lines.append((self.end, screen_to_world(pg.mouse.get_pos(), self.offset)))
+                        elif self.shapes[1]:
+                            pos = screen_to_world(pg.mouse.get_pos(), self.offset)
+                            self.squares.append(pg.Rect(self.end[0], self.end[1],
+                                                        pos[0] - self.end[0], pos[1] - self.end[1]))
                         self.end = (-1000000, -1000000)
 
 
