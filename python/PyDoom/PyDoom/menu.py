@@ -1,8 +1,9 @@
 import pygame as pg
-from pydoom import PyDoom
-from globals import FONT, SCREEN_WIDTH, SCREEN_HEIGHT, MENU_SPACING,\
+
+from PyDoom.globals import FONT, SCREEN_WIDTH, SCREEN_HEIGHT, MENU_SPACING, \
     MENU_OPTIONS_MAIN, MENU_OPTIONS_OPTION, SCREEN_MENU, SCREEN_OPTIONS
-from image_utilities import get_image
+from PyDoom.imageutilities import get_image
+from PyDoom.pydoom import PyDoom
 
 
 class Menu(PyDoom):

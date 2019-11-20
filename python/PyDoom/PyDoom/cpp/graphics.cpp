@@ -112,7 +112,8 @@ std::vector<DistWall> get_intersections(Point player_pos, float player_angle, fl
 }
 
 int main(int argc, char** argv){
-
+    // This file was an idea I had while I was trying to find the intersection of each horizontal line...
+    //  I've since moved from this very bad idea
     //
     // The order of data being entered should be (filename, player_pos_x, player_pos_y, player_angle, player_fov, iterations(SCREEN_WIDTH), *wall_info)
     //

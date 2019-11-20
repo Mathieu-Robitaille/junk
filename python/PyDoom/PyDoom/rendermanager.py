@@ -8,8 +8,8 @@ from math import cos, sin, pi
 import numpy as np
 import pygame as pg
 
-import logger
-from globals import SCREEN_WIDTH, SCREEN_HEIGHT, LEVEL_WIDTH, LEVEL_HEIGHT, \
+import PyDoom.logger
+from PyDoom.globals import SCREEN_WIDTH, SCREEN_HEIGHT, LEVEL_WIDTH, LEVEL_HEIGHT, \
     LEVEL_CELL_SPACING, RENDER_MINI_MAP_OFFSET, RENDER_DEPTH, Wall, Line, Point, \
     normalize, distance_to_point
 
@@ -158,7 +158,7 @@ def draw_walls(surface, game, walls):
             pg.draw.polygon(surface, color, coordinates)
         except TypeError as e:
             # This exception is not really needed
-            logger.log("There has been an exception : ", e)
+            PyDoom.logger.log("There has been an exception : ", e)
 
 
 def draw_actors(surface, game, walls):
@@ -230,9 +230,9 @@ def draw_minimap(surface, game, walls):
                   int(wall.p2.y * LEVEL_CELL_SPACING))
             pg.draw.line(surface, pg.Color("Red"), ls, le, 1)
         except IndexError:
-            logger.log("index error")
+            PyDoom.logger.log("index error")
         except TypeError:
-            logger.log("Type error")
+            PyDoom.logger.log("Type error")
     for actor in game.actors:
         pos = (int(RENDER_MINI_MAP_OFFSET + (actor.pos.x * LEVEL_CELL_SPACING)),
                int(actor.pos.y * LEVEL_CELL_SPACING))

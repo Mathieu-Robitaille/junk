@@ -1,9 +1,8 @@
-from math import cos, sin, pi, fabs, sqrt
-from timeit import default_timer as timer
+from math import cos, sin, pi
 
 import pygame as pg
-import logger
-from globals import *
+from PyDoom import logger
+from PyDoom.globals import *
 
 
 def points_in_circum(offset=0, radius=100, n=100):

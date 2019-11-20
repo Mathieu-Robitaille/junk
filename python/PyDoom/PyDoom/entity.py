@@ -1,8 +1,9 @@
 from math import pi, cos, sin
-from globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point, SCREEN_HEIGHT, SCREEN_WIDTH
-from image_utilities import get_image
 
 import pygame as pg
+
+from PyDoom.globals import TEAM_PLAYER, TEAM_ENEMY, two_d_to_one_d, Point, SCREEN_HEIGHT, SCREEN_WIDTH
+from PyDoom.imageutilities import get_image
 
 
 class Entity:
@@ -165,9 +166,16 @@ class Player(Entity):
         super().take_damage(amount)
 
     def mouse_aim(self):
+        """
+        There's a difference in running this code via python in the commandline vs pycharm...
+        The following is needed if we're running this from pycharm
         pos = pg.mouse.get_pos()
         diff = self.prev_mouse_aim[0] - pos[0]
         self.angle -= (0.75 * (diff / 10) * self.tick)
+        pg.mouse.set_pos((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+        """
+        diff = pg.mouse.get_rel()
+        self.angle -= (0.75 * (-diff[0] / 10) * self.tick)
 
     def move(self):
         if self.wasdqe_held[0]:  # W

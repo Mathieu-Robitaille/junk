@@ -15,6 +15,7 @@ VERSION = "0.0.4"
 SCREEN_WIDTH = 1200
 SCREEN_HEIGHT = 800
 
+
 #
 # World generation constants
 #
@@ -79,7 +80,7 @@ TEAM_ENEMY = 2
 #
 # Image utility globals
 #
-IU_ASSET_DIR = "assets"
+IU_ASSET_DIR = "PyDoom/assets"
 
 
 #
@@ -187,10 +188,14 @@ class Wall:
     def __lt__(self, other):
         if isinstance(other, Wall):
             return self.n_d < self.n_d
+        else:
+            raise Exception("Not instance of wall")
 
     def __gt__(self, other):
         if isinstance(other, Wall):
             return self.n_d > self.n_d
+        else:
+            raise Exception("Not instance of wall")
 
 
 #

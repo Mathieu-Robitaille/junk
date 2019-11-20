@@ -1,5 +1,6 @@
 import pygame as pg
-from globals import SCREEN_WIDTH, LEVEL_HEIGHT, LEVEL_WIDTH, LEVEL_CELL_SPACING, FONT
+
+from PyDoom.globals import SCREEN_WIDTH, LEVEL_HEIGHT, LEVEL_WIDTH, LEVEL_CELL_SPACING, FONT
 
 pg.font.init()
 font = pg.font.Font(FONT, 16)

@@ -1,4 +1,4 @@
-from globals import one_d_to_two_d, Line, LEVEL_WIDTH, LEVEL_HEIGHT
+from PyDoom.globals import one_d_to_two_d, Line, LEVEL_WIDTH, LEVEL_HEIGHT
 
 
 def get_map(width, height):
@@ -53,7 +53,7 @@ def create_cells(level_map):
     #     else:
     #         # Not a wall
     #         r.append(Cell(i, is_wall=False))
-    return [Cell(x, True if level_map[x] == '#' else False) for x in range(len(level_map))]
+    return [Cell(x, level_map[x] == '#') for x in range(len(level_map))]
 
 
 def get_north(c, l):

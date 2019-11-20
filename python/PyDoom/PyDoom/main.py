@@ -1,12 +1,12 @@
 import sys
 
 import pygame as pg
-import logger
 
-from game import Game
-from globals import *
-from menu import Menu
-from pydoom import PyDoom
+from PyDoom.logger import on_screen_log
+from PyDoom.globals import SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_MENU, SCREEN_GAME, SCREEN_OPTIONS, VERSION
+from PyDoom.menu import Menu
+from PyDoom.ptrs import GAME_OBJ
+from PyDoom.pydoom import PyDoom
 
 
 class Doom(PyDoom):
@@ -21,7 +21,6 @@ class Doom(PyDoom):
         # I want to init PyGame and its submodules before i call the base PyDoom object's methods
         super().__init__()
 
-
         # Object to govern game time
         self.clock = pg.time.Clock()
 
@@ -34,13 +33,15 @@ class Doom(PyDoom):
         # In this game each "screen" is considered something that may have differing
         # methods to handle data. ex: on the game screen W, A, S, D would move the player,
         # While the menu screen may use W and S to navigate menu options
-        self.screens = [Menu("Main"), Menu("Options"), Game()]
+        self.screens = [Menu("Main"), Menu("Options"), GAME_OBJ]
 
         # Defaulting the game to start at the menu screen so we have the option to
         # load the previous game save, change options, etc...
         self.active = SCREEN_MENU
 
+        # Grab the cursor so we can use the mouse to aim
         pg.event.set_grab(True)
+        # Make it invisible so its not in the way
         pg.mouse.set_visible(False)
 
     def draw(self, surface):
@@ -53,7 +54,7 @@ class Doom(PyDoom):
         # Only draw the current fps if we're playing, otherwise the info is almost useless.
         if self.active == SCREEN_GAME:
             fps = "fps : {:.2f}".format(self.clock.get_fps())
-            logger.on_screen_log(fps, surface)
+            on_screen_log(fps, surface)
         pg.display.update()
 
     def run(self):
@@ -69,7 +70,6 @@ class Doom(PyDoom):
             # Update the currently active screen
             self.update(self.frame_time)
             self.draw(self.surface)
-            pg.mouse.set_pos((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
 
     def update(self, frame_time):
         super().update(self.frame_time)
@@ -108,9 +108,9 @@ class Doom(PyDoom):
 
 # Two abstraction blocks in the event I want to change how the game starts (Load all images first?)
 def main():
+    print("PyDoom version", VERSION)
     Doom().run()
 
 
 if __name__ == "__main__":
-    print("PyDoom version", VERSION)
     main()

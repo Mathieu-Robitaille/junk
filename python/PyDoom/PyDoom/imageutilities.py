@@ -1,8 +1,10 @@
-from globals import IU_ASSET_DIR
-import pygame as pg
 from os import listdir, sep
 from os.path import isfile, join
-import logger
+
+import pygame as pg
+
+import PyDoom.logger
+from PyDoom.globals import IU_ASSET_DIR
 
 # A dictionary allowing key/pair access for entities to load sprite data from a
 # keyword, we can then use globals (or whatever to change the names of these keys
@@ -23,8 +25,8 @@ def load_images():
             if isfile(asset):
                 IMAGE_LIBRARY[file.split(sep)[-1]] = pg.image.load(asset)
         except Exception as e:
-            logger.log("Failed to load image {}".format(asset))
-            logger.log(e)
+            PyDoom.logger.log("Failed to load image {}".format(asset))
+            PyDoom.logger.log(e)
 
 
 def get_image(image_name):
@@ -34,7 +36,7 @@ def get_image(image_name):
         try:
             IMAGE_LIBRARY[image_name] = pg.image.load(join(IU_ASSET_DIR, image_name))
         except Exception as e:
-            logger.log("Failed to load image {}".format(image_name))
-            logger.log(e)
+            PyDoom.logger.log("Failed to load image {}".format(image_name))
+            PyDoom.logger.log(e)
     return IMAGE_LIBRARY[image_name]
 
