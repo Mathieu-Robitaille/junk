@@ -32,6 +32,8 @@ class DoomCAD:
         self.pan = False
 
     def draw(self):
+        if self.shapes[1]:
+            pg.draw.circle(self.surface, pg.Color("White"), pg.mouse.get_pos(), 20)
         pg.draw.circle(self.surface, pg.Color("white"), world_to_screen((0, 0), self.offset), 10)
         for line in self.lines:
             start = world_to_screen(line[0], self.offset)
@@ -77,6 +79,8 @@ class DoomCAD:
             if keys != 0:
                 if keys[pg.K_LCTRL]:
                     self.pan = True
+            else:
+                self.shapes[1:] = False
             if pg.mouse.get_focused() and not self.pan:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 3:
@@ -100,6 +104,7 @@ class DoomCAD:
                             pos = screen_to_world(pg.mouse.get_pos(), self.offset)
                             self.squares.append(pg.Rect(self.end[0], self.end[1],
                                                         pos[0] - self.end[0], pos[1] - self.end[1]))
+                            self.shapes[1] = False
                         self.end = (-1000000, -1000000)
 
 
