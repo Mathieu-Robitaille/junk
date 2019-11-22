@@ -19,7 +19,7 @@ PAN_KEY = pg.K_LCTRL
 RECTANGLE_KEY = pg.K_LSHIFT
 CIRCLE_KEY = pg.K_c
 SPLINE_KEY = pg.K_x
-
+MOVE_NODE_BUTTON = 3
 
 class DoomCAD:
     def __init__(self):
@@ -32,7 +32,7 @@ class DoomCAD:
         self.offset = (-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
         self.start_offset = (0, 0)
         # Line, Rectangle, Circle, Splines
-        self.shapes = [False for i in range(4)]
+        self.shapes = [False] * 4
         self.mouse_pos = (0, 0)
         self.lines = []
         self.squares = []
@@ -52,6 +52,10 @@ class DoomCAD:
             elif self.shapes[1]:
                 pos = pg.mouse.get_pos()
                 pg.draw.rect(self.surface, pg.Color("Red"), (end[0], end[1], pos[0] - end[0], pos[1] - end[1]), 5)
+            elif self.shapes[2]:
+                pos = pg.mouse.get_pos()
+                r = dist(end, (pos[0] - end[0], pos[1] - end[1]))
+                pg.draw.circle(self.surface, pg.Color("Red"), (end[0], end[1]), r, width=5)
         pg.display.update()
 
     def draw_lines(self):
@@ -71,7 +75,7 @@ class DoomCAD:
     def draw_circles(self):
         for circle in self.circles:
             x, y = world_to_screen((circle.x, circle.y), self.offset)
-            r = dist((x, y), (circle.w, circle.h))
+            r = dist((circle.x, circle.y), (circle.w, circle.h))
             pg.draw.circle(self.surface, pg.Color("Purple"), (x, y), r, width=5)
 
     def move_dot(self, start, end):
@@ -92,46 +96,37 @@ class DoomCAD:
                 return line, line[0]
         return None
 
-    def toggle_shapes(self):
-        self.shapes = [False for i in range(4)]
+    def toggle_keys(self):
+        self.pan = False
+        self.shapes = [False] * 4
         keys = pg.key.get_pressed()
         if keys != 0:
-            self.shapes[0] = all(k == 0 for k in keys)
-            # I'm thinking this should provide a priority to rectangle over other shapes
-            self.shapes[1] = bool(keys[RECTANGLE_KEY] and all(s == False for s in self.shapes))
-            self.shapes[2] = bool(keys[CIRCLE_KEY] and all(s == False for s in self.shapes))
-            self.shapes[3] = bool(keys[SPLINE_KEY] and all(s == False for s in self.shapes))
+            self.pan = bool(keys[PAN_KEY])
+            if not self.pan:
+                self.shapes[0] = all(k == 0 for k in keys)
+                # I'm thinking this should provide a priority to rectangle over other shapes
+                self.shapes[1] = bool(keys[RECTANGLE_KEY] and all(s == False for s in self.shapes))
+                self.shapes[2] = bool(keys[CIRCLE_KEY] and all(s == False for s in self.shapes))
+                self.shapes[3] = bool(keys[SPLINE_KEY] and all(s == False for s in self.shapes))
 
     def event(self):
         """
         Wow this is bad and needs to get ripped out
         :return:
         """
-        keys = pg.key.get_pressed()
         for event in pg.event.get():
-            self.pan = False
             if event.type == pg.KEYDOWN:
                 self.start_offset = self.mouse_pos
-            if keys != 0:
-                if keys[PAN_KEY]:
-                    self.pan = True
-            else:
-                self.shapes[1:] = False
             if pg.mouse.get_focused() and not self.pan:
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == 3:
+                    if event.button == MOVE_NODE_BUTTON:
                         near = self.near_other()
                         if near:
                             self.end = near[1]
                             if near[0] in self.lines:
                                 self.lines.remove(near[0])
+                    # If we're drawing a shape
                     if event.button == 1:
-                        if keys[RECTANGLE_KEY]:
-                            self.shapes[1] = True
-                        elif keys[CIRCLE_KEY]:
-                            self.shapes[2] = True
-                        elif all(k == 0 for k in keys):
-                            self.shapes[0] = True
                         if any(self.shapes):
                             self.end = screen_to_world(pg.mouse.get_pos(), self.offset)
                 if event.type == pg.MOUSEBUTTONUP:
@@ -147,6 +142,15 @@ class DoomCAD:
                             self.circles.append(pg.Rect(self.end[0], self.end[1],
                                                         pos[0] - self.end[0], pos[1] - self.end[1]))
                         self.end = (-1000000, -1000000)
+
+    def do_pan(self):
+        """ Naming 101 """
+        if self.pan:
+            self.offset = (self.offset[0] - (self.mouse_pos[0] - self.start_offset[0]),
+                           self.offset[1] - (self.mouse_pos[1] - self.start_offset[1]))
+            self.start_offset = self.mouse_pos
+        else:
+            self.start_offset = (0, 0)
 
 
 def world_to_screen(world, offset):
@@ -187,13 +191,10 @@ def main():
     while True:
         cad.clock.tick(60)
         cad.mouse_pos = pg.mouse.get_pos()
-        cad.toggle_shapes()
+        cad.toggle_keys()
         cad.surface.fill(pg.Color("black"))
         cad.event()
-        if cad.pan:
-            cad.offset = (cad.offset[0] - (cad.mouse_pos[0] - cad.start_offset[0]),
-                          cad.offset[1] - (cad.mouse_pos[1] - cad.start_offset[1]))
-            cad.start_offset = cad.mouse_pos
+        cad.do_pan()
         cad.draw()
 
 
