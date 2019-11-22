@@ -54,7 +54,7 @@ class DoomCAD:
                 pg.draw.rect(self.surface, pg.Color("Red"), (end[0], end[1], pos[0] - end[0], pos[1] - end[1]), 5)
             elif self.shapes[2]:
                 pos = pg.mouse.get_pos()
-                r = dist(end, (pos[0] - end[0], pos[1] - end[1]))
+                r = dist(end, pos)
                 pg.draw.circle(self.surface, pg.Color("Red"), (end[0], end[1]), r, width=5)
         pg.display.update()
 
@@ -140,7 +140,7 @@ class DoomCAD:
                         elif self.shapes[2]:
                             pos = screen_to_world(pg.mouse.get_pos(), self.offset)
                             self.circles.append(pg.Rect(self.end[0], self.end[1],
-                                                        pos[0] - self.end[0], pos[1] - self.end[1]))
+                                                        pos[0], pos[1]))
                         self.end = (-1000000, -1000000)
 
     def do_pan(self):
