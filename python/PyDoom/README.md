@@ -145,6 +145,7 @@ Build a sprite loader with translating based on enemy angle
 Allow non rectangular level geometry. 
 Allow walls to have windows.
 Build a binary space partitioner for new level geometry, may walls = slow game if not handled properly
+	A chunk manager could do well for this, I'm already ray casting for colliding walls, a ray to each chunk within the fov wouldnt be horrendous for speed
 
 
 BONUS FEATURES:
