@@ -70,6 +70,12 @@ Once we have this, we have line segments we can use for collision and rendering.
 
 -- Renderer --
 
+# Better culling
+# New Idea, Use linear algebra to do the smart thing
+# 	If I build a normal for each wall, facing "out" for that wall
+# 	I can use the dot product of the player's facing vector with the wall's 
+#	Normal vector, if > 0 Render it, if < 0 ignore it since I'm behind the wall
+
 Initially I had constructed a ray marcher which would calculate the rough distance to a wall for each horizontal
 pixel of the screen by stepping 0.1 units at a time until we're indexed into the level string at a pound sign.
 This distance value would be used to calculate the height of the walls, where the player can/cannot move, the shade of
