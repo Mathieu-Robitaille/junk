@@ -154,3 +154,69 @@ Allow character to break walls? expanding map further?
 
 BUGS (Ahem... Features)
 Renderer currently draws walls out of order some times, Likely a simple fix.
+
+
+# Vars
+ - screen_width: 1200
+ - screen_height: 800
+ - north : 0
+ - south : 1
+ - east : 2
+ - west : 3
+ - level_width : 15
+ - level_height : 15
+ - level_path_length_min : 3   // random number, may need some tuning
+ - level_path_length_max : 10  // random number, may need some tuning
+ - level_path_chance : 100
+ - level_path_direction_chance : 50
+ - level_cell_spacing : 10
+ - level_path_offset : 10
+
+Room size vars
+The average size of rooms by way on number of cells in the room
+ - room_size : 60,
+ - room_chance : 0.6,
+ - room_count_max : 10 - int(level_size / (room_size / 3) / room_chance) + 1  
+ - room_count_min : 5 - int(room_count_max / 1.5)
+
+Menu Vars
+
+ - menu_spacing : 40,
+
+ - render_depth: 30
+ - render_wall_size: 2.5
+    # this is the divisor for ray casting, a larger number means more deg between rays
+    
+ - render_mini_map_offset: screen_width - (level_width * level_path_offset)
+    
+    #
+    # screen type "enums"
+    #
+ - screen_menu: 0
+ - screen_options: 1
+ - screen_game: 2
+ - menu_options_main: ["new game", "options", "exit"],
+ - menu_options_option: ["graphics : {}x{}".format(screen_width, screen_height), "volume : 100", "back"],
+    
+    #
+    # entity "enums"
+    #
+ - team_gaea: 0
+ - team_player: 1
+ - team_enemy: 2
+   
+    #
+    # image utility globals
+    #
+ - iu_asset_dir: "pydoom/assets"
+    
+    
+    #
+    # text options
+    #
+ - font: "freesansbold.ttf"
+    
+    #
+    # logging constants
+    #
+ - logging_dir: "logs"

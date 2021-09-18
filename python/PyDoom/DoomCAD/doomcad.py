@@ -21,6 +21,7 @@ CIRCLE_KEY = pg.K_c
 SPLINE_KEY = pg.K_x
 MOVE_NODE_BUTTON = 3
 
+
 class DoomCAD:
     def __init__(self):
         if not pg.init():
@@ -31,6 +32,7 @@ class DoomCAD:
         self.end = (-1000000, -1000000)
         self.offset = (-SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2)
         self.start_offset = (0, 0)
+        self.shape_move_offset = (0, 0)
         # Line, Rectangle, Circle, Splines
         self.shapes = [False] * 4
         self.mouse_pos = (0, 0)
@@ -56,6 +58,11 @@ class DoomCAD:
                 pos = pg.mouse.get_pos()
                 r = dist(end, pos)
                 pg.draw.circle(self.surface, pg.Color("Red"), (end[0], end[1]), r, width=5)
+        if self.shape_move_offset != (0, 0):
+            if self.shapes[2]:
+                pos = pg.mouse.get_pos()
+                r = dist(self.shape_move_offset, pos)
+                pg.draw.circle(self.surface, pg.Color("Red"), pos, r, width=5)
         pg.display.update()
 
     def draw_lines(self):
@@ -77,14 +84,15 @@ class DoomCAD:
             x, y = world_to_screen((circle.x, circle.y), self.offset)
             r = dist((circle.x, circle.y), (circle.w, circle.h))
             pg.draw.circle(self.surface, pg.Color("Purple"), (x, y), r, width=5)
+            self.move_dot((x, y))
 
-    def move_dot(self, start, end):
+    def move_dot(self, start, end=(-1000000, -1000000)):
         if dist(start, pg.mouse.get_pos()) <= CLOSE:
-            pg.draw.circle(self.surface, pg.Color("Red"), start, 3)
+            pg.draw.circle(self.surface, pg.Color("Red"), start, 5)
         if dist(end, pg.mouse.get_pos()) <= CLOSE:
-            pg.draw.circle(self.surface, pg.Color("Red"), end, 3)
+            pg.draw.circle(self.surface, pg.Color("Red"), end, 5)
 
-    def near_other(self):
+    def near_other_line(self):
         """
         :return: the dot you're near
         """
@@ -95,6 +103,12 @@ class DoomCAD:
             if dist(line[1], pos) <= CLOSE:
                 return line, line[0]
         return None
+
+    def near_other_circle(self):
+        pos = screen_to_world(pg.mouse.get_pos(), self.offset)
+        for circle in self.circles:
+            if dist((circle.x, circle.y), pos) <= CLOSE:
+                return circle
 
     def toggle_keys(self):
         self.pan = False
@@ -119,12 +133,17 @@ class DoomCAD:
                 self.start_offset = self.mouse_pos
             if pg.mouse.get_focused() and not self.pan:
                 if event.type == pg.MOUSEBUTTONDOWN:
-                    if event.button == MOVE_NODE_BUTTON:
-                        near = self.near_other()
+                    if event.button == MOVE_NODE_BUTTON and not CIRCLE_KEY:
+                        near = self.near_other_line()
                         if near:
                             self.end = near[1]
                             if near[0] in self.lines:
                                 self.lines.remove(near[0])
+                    if event.button == MOVE_NODE_BUTTON and CIRCLE_KEY:
+                        near = self.near_other_circle()
+                        if near:
+                            self.circles.remove(near)
+                            self.shape_move_offset = (near.w, near.h)
                     # If we're drawing a shape
                     if event.button == 1:
                         if any(self.shapes):
@@ -138,9 +157,14 @@ class DoomCAD:
                             self.squares.append(pg.Rect(self.end[0], self.end[1],
                                                         pos[0] - self.end[0], pos[1] - self.end[1]))
                         elif self.shapes[2]:
-                            pos = screen_to_world(pg.mouse.get_pos(), self.offset)
-                            self.circles.append(pg.Rect(self.end[0], self.end[1],
-                                                        pos[0], pos[1]))
+                            if self.shape_move_offset != (0, 0):
+                                pos = screen_to_world(pg.mouse.get_pos(), self.offset)
+                                self.circles.append(pg.Rect(pos[0], pos[1],
+                                                            self.shape_move_offset[0], self.shape_move_offset[1]))
+                            else:
+                                pos = screen_to_world(pg.mouse.get_pos(), self.offset)
+                                self.circles.append(pg.Rect(self.end[0], self.end[1],
+                                                            pos[0], pos[1]))
                         self.end = (-1000000, -1000000)
 
     def do_pan(self):

@@ -12,7 +12,7 @@ def get_map(width, height):
            "#   #     #   #" \
            "#   #  #  #   #" \
            "#   #  #  #   #" \
-           "###########   #" \
+           "#   #######   #" \
            "#             #" \
            "#    # ##     #" \
            "#    ###      #" \
@@ -23,6 +23,7 @@ def get_map(width, height):
 def get_map2(width, height):
     #
     # Figure out how to override global's LEVEL_WIDTH
+    # make sure LEVEL globals are set correctly
     #
     return "##############################" \
            "#                            #" \

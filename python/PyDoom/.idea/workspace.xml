@@ -1,31 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="16685e3b-4d71-4547-a004-f739713cf297" name="Default Changelist" comment="Massive project structure change, see README # STRUCTURE">
-      <change afterPath="$PROJECT_DIR$/PyDoom/ptrs.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/PyDoom/weapon.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/setup.py" afterDir="false" />
+    <list default="true" id="16685e3b-4d71-4547-a004-f739713cf297" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Ideas/idea_level.py" beforeDir="false" afterPath="$PROJECT_DIR$/Ideas/idea_level.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/MainLogo.png" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/assets/MainLogo.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/assets/imp.png" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/assets/imp.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/component_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/componentmanager.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/graphics" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/cpp/graphics" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/graphics.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/cpp/graphics.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/cpp/tmp" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/cpp/tmp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/depricated_code/render_manager_old.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/depricated_code/render_manager_old.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/entity.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/entity.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/game.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/globals.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/globals.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/image_utilities.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/imageutilities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/level.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logger.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/logger.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/menu.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pydoom.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/pydoom.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/render_manager.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/rendermanager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/DoomCAD/doomcad.py" beforeDir="false" afterPath="$PROJECT_DIR$/DoomCAD/doomcad.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/PyDoom/level.py" beforeDir="false" afterPath="$PROJECT_DIR$/PyDoom/level.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -47,7 +26,8 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="ASKED_SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="com.intellij.ide.scratch.LRUPopupBuilder$1/New Scratch File" value="Python" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../.." />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
@@ -64,7 +44,28 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.setup">
+  <component name="RunManager" selected="Python.doomcad">
+    <configuration name="doomcad" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="PyDoom" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/DoomCAD" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/DoomCAD/doomcad.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="main (1)" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="PyDoom" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -107,7 +108,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="menu" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="scratch_1" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="PyDoom" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -115,11 +116,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="WORKING_DIRECTORY" value="$APPLICATION_CONFIG_DIR$/scratches" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/menu.py" />
+      <option name="SCRIPT_NAME" value="$APPLICATION_CONFIG_DIR$/scratches/scratch_1.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -151,10 +152,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.doomcad" />
+        <item itemvalue="Python.scratch_1" />
         <item itemvalue="Python.setup" />
         <item itemvalue="Python.main (1)" />
         <item itemvalue="Python.main" />
-        <item itemvalue="Python.menu" />
       </list>
     </recent_temporary>
   </component>
@@ -176,7 +178,56 @@
       <option name="project" value="LOCAL" />
       <updated>1568840892143</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Massive project structure change, see README # STRUCTURE">
+      <created>1574265195496</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1574265195496</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Massive project structure change, see README # STRUCTURE">
+      <created>1574265249608</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1574265249609</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Created doc string">
+      <created>1574265386373</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1574265386373</updated>
+    </task>
+    <task id="LOCAL-00005" summary="&quot;Patched&quot; pycharm aiming bug">
+      <created>1574267195356</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1574267195356</updated>
+    </task>
+    <task id="LOCAL-00006" summary="rebuilding DoomCAD, it hurts to read">
+      <created>1574432424847</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1574432424847</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Cleaned up DoomCAD to an almost readable state">
+      <created>1574433672223</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1574433672223</updated>
+    </task>
+    <task id="LOCAL-00008" summary="DoomCAD now almost makes sense, and shapes draw properly">
+      <created>1574434513152</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1574434513152</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -184,7 +235,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
@@ -193,6 +246,11 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="More work on the frame of the game, test drawing of the world is in place" />
     <MESSAGE value="Massive project structure change, see README # STRUCTURE" />
-    <option name="LAST_COMMIT_MESSAGE" value="Massive project structure change, see README # STRUCTURE" />
+    <MESSAGE value="Created doc string" />
+    <MESSAGE value="&quot;Patched&quot; pycharm aiming bug" />
+    <MESSAGE value="rebuilding DoomCAD, it hurts to read" />
+    <MESSAGE value="Cleaned up DoomCAD to an almost readable state" />
+    <MESSAGE value="DoomCAD now almost makes sense, and shapes draw properly" />
+    <option name="LAST_COMMIT_MESSAGE" value="DoomCAD now almost makes sense, and shapes draw properly" />
   </component>
 </project>
