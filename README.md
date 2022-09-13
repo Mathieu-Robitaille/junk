@@ -1,4 +1,4 @@
-# portfollio
+# junk
 A small collection of personal projects
 
 Most relevant code is in the top level python folder
